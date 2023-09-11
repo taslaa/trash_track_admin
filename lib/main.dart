@@ -1,9 +1,18 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:trash_track_admin/features/user/screens/login_screen.dart'; // Import your LoginScreen
+import 'package:trash_track_admin/features/vehicle-model/services/vehicle_models_service.dart';
+import 'package:trash_track_admin/shared/services/enums_service.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (create) => VehicleModelsService()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

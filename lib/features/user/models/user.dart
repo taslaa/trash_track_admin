@@ -1,37 +1,59 @@
-import 'package:trash_track_admin/shared/models/base_entity.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'package:trash_track_admin/features/country/models/country.dart';
+import 'package:trash_track_admin/features/photo/models/photo.dart';
 
-enum Role {
-  administrator,
-  user,
-}
+part 'user.g.dart';
 
-class UserEntity extends BaseEntity {
-  final String? firstName;
-  final String? lastName;
-  final String? email;
-  final String? phoneNumber;
-  final String? password;
-  final Role? role;
+@JsonSerializable()
+class UserEntity {
+  int? id;
+  String? firstName;
+  String? lastName;
+  String? email;
+  String? phoneNumber;
+  String? biography;
+  DateTime? birthDate;
+  Gender? gender; 
+  int? genderId; 
+  int? countryId;
+  Country? country;
+  int? roleId;
+  Role? role;
+  int? profilePhotoId;
+  Photo? profilePhoto;
+  bool? isActive;
 
-  const UserEntity({
+  UserEntity({
+    this.id,
     this.firstName,
     this.lastName,
     this.email,
     this.phoneNumber,
-    this.password,
+    this.biography,
+    this.birthDate,
+    this.gender,
+    this.genderId,
+    this.country,
+    this.countryId,
     this.role,
+    this.roleId,
+    this.profilePhoto,
+    this.profilePhotoId,
+    this.isActive,
   });
 
-  @override
-  List<Object?> get props {
-    return [
-      id,
-      firstName,
-      lastName,
-      email,
-      phoneNumber,
-      password,
-      role,
-    ];
-  }
+  factory UserEntity.fromJson(Map<String, dynamic> json) =>
+      _$UserEntityFromJson(json);
+
+  Map<String, dynamic> toJson() => _$UserEntityToJson(this);
+}
+
+enum Gender {
+  male,
+  female,
+}
+
+enum Role {
+  administrator,
+  user,
 }

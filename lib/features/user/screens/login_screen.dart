@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trash_track_admin/features/admin-panel/screens/admin_panel._screen.dart';
 import 'package:trash_track_admin/features/user/services/auth_service.dart'; // Adjust the import path to your AuthService file
 import 'package:trash_track_admin/features/user/widgets/success_screen.dart';
 
@@ -28,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (token != null) {
       // Login successful, navigate to the SuccessScreen for testing.
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => SuccessScreen()),
+        MaterialPageRoute(builder: (context) => AdminPanelScreen()),
       );
     } else {
       // Login failed, show an error message to the user.
@@ -55,27 +56,92 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Login'),
-      ),
+      backgroundColor: Colors.white, // Background color set to white
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+            Text(
+              'Login to Account',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.black, // Text color
+              ),
             ),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
-              obscureText: true,
+            SizedBox(height: 20),
+            Container(
+              width: 400, // Adjust the width as needed
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white, // Input background color
+                border: Border.all(
+                  color: Color(0xFF49464E), // Border color when not focused
+                ),
+              ),
+              child: TextField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  prefixIcon: Icon(Icons.email), // Email icon
+                  border: InputBorder.none, // Remove default input border
+                ),
+                style: TextStyle(
+                  color: Color(0xFF49464E), // Text color when focused
+                ),
+              ),
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 10),
+            Container(
+              width: 400, // Adjust the width as needed
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white, // Input background color
+                border: Border.all(
+                  color: Color(0xFF49464E), // Border color when not focused
+                ),
+              ),
+              child: TextField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  prefixIcon: Icon(Icons.lock), // Password icon
+                  border: InputBorder.none, // Remove default input border
+                ),
+                style: TextStyle(
+                  color: Color(0xFF49464E), // Text color when focused
+                ),
+                obscureText: true,
+              ),
+            ),
+            SizedBox(height: 10),
+            Align(
+              alignment: Alignment.center,
+              child: Text(
+                'Forgot Password?',
+                style: TextStyle(
+                  color: Color(0xFF49464E), 
+                  fontWeight: FontWeight.bold
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: _handleSignIn,
-              child: Text('Sign In'),
+              child: Text(
+                'Sign In',
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                primary: Color(0xFF49464E), // Button color
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10), // Button border radius
+                ),
+                minimumSize: Size(400, 48), // Button size
+              ),
             ),
           ],
         ),
