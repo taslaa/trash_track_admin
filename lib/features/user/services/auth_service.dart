@@ -2,8 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 
 class AuthService extends ChangeNotifier {
+  String? _userName;
+  String? get userName => _userName;
   static String? _baseUrl;
   String _endpoint = "api/Access/SignIn";
  
@@ -29,6 +32,15 @@ class AuthService extends ChangeNotifier {
       var data = jsonDecode(response.body);
 
       var result = data;
+
+      String? token = result['token'];
+
+      if (token != null) {
+        // Decode the JWT token
+        Map<String, dynamic> decodedToken = Jwt.parseJwt(token);
+
+        _userName = decodedToken['FirstName'] + ' ' + decodedToken['LastName'];
+      }
 
       return result;
     } else {

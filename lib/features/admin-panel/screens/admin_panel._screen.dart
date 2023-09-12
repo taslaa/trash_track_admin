@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:trash_track_admin/features/admin-panel/widgets/admin_header.dart';
 import 'package:trash_track_admin/features/admin-panel/widgets/admin_sidebar.dart';
 import 'package:trash_track_admin/features/dashboard/screens/dashboard_screen.dart';
+import 'package:trash_track_admin/features/user/services/auth_service.dart';
 import 'package:trash_track_admin/features/vehicle-model/models/vehicle_model.dart';
 import 'package:trash_track_admin/features/vehicle-model/screens/vehicle_models_screen.dart';
+import 'package:trash_track_admin/features/vehicle/screens/vehicles_screen.dart';
 
 class AdminPanelScreen extends StatefulWidget {
   @override
@@ -11,7 +14,8 @@ class AdminPanelScreen extends StatefulWidget {
 }
 
 class _AdminPanelScreenState extends State<AdminPanelScreen> {
-  String selectedRoute = 'dashboard'; // Initial selected route
+  String selectedRoute = 'dashboard';
+  String userName = 'No Name';
 
   void onTabSelected(String route) {
     setState(() {
@@ -24,7 +28,9 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     return Scaffold(
       body: Column(
         children: [
-          AdminHeaderWidget(adminName: 'John Doe'),
+          AdminHeaderWidget(
+            adminName: userName,
+          ),
           Expanded(
             child: Row(
               children: [
@@ -37,7 +43,8 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                   child: Container(
                     color: Colors.white, // Set background color as needed
                     child: Center(
-                      child: _buildSelectedScreen(selectedRoute), // Show the selected screen
+                      child: _buildSelectedScreen(
+                          selectedRoute), // Show the selected screen
                     ),
                   ),
                 ),
@@ -54,7 +61,9 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
       case 'dashboard':
         return DashboardScreen();
       case 'vehicle_models':
-        return VehicleModelsScreen(); // Replace 'VehicleModelsScreen' with your actual screen
+        return VehicleModelsScreen();
+      case 'vehicles':
+        return VehiclesScreen(); // Replace 'VehicleModelsScreen' with your actual screen
       default:
         return const Text(
           'Welcome to the Admin Panel!',

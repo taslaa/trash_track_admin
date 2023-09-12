@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trash_track_admin/features/vehicle-model/models/vehicle_model.dart';
+import 'package:trash_track_admin/features/vehicle-model/screens/vehicle_model_add_screen.dart';
 import 'package:trash_track_admin/features/vehicle-model/services/vehicle_models_service.dart';
 import 'package:trash_track_admin/features/vehicle-model/widgets/table_cell.dart';
-import 'package:trash_track_admin/features/vehicle-model/screens/vehicle_model_edit_screen.dart'; // Import the VehicleModelEditScreen
+import 'package:trash_track_admin/features/vehicle-model/screens/vehicle_model_edit_screen.dart';
+import 'package:trash_track_admin/features/vehicle-model/widgets/paging_component.dart';
 
 class VehicleModelsScreen extends StatefulWidget {
   const VehicleModelsScreen({Key? key, this.vehicleModel}) : super(key: key);
   final VehicleModel? vehicleModel;
-  
 
   @override
   _VehicleModelsScreenState createState() => _VehicleModelsScreenState();
@@ -20,6 +21,14 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
   bool _isLoading = true;
   List<VehicleModel> _vehicleModels = [];
 
+  VehicleType? _selectedVehicleType;
+  String _searchQuery = '';
+
+  // Paging variables
+  int _currentPage = 1;
+  int _itemsPerPage = 3;
+  int _totalRecords = 0;
+
   @override
   void initState() {
     super.initState();
@@ -30,15 +39,34 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
       'vehicleType': widget.vehicleModel?.vehicleType.toString(),
     };
 
-    _loadVehicleModels();
+    _loadPagedVehicleModels();
   }
 
-  Future<void> _loadVehicleModels() async {
+  String convertToEnumValue(VehicleType? selectedValue) {
+    switch (selectedValue) {
+      case VehicleType.truck:
+        return 'Truck';
+      case VehicleType.garbageTruck:
+        return 'GarbageTruck';
+      default:
+        return '';
+    }
+  }
+
+  Future<void> _loadPagedVehicleModels() async {
     try {
-      final models = await _modelProvider.getPaged();
-      print('Received models: $models');
+      final models = await _modelProvider.getPaged(
+        filter: {
+          'query': _searchQuery,
+          'type': convertToEnumValue(_selectedVehicleType),
+          'pageNumber': _currentPage,
+          'pageSize': _itemsPerPage,
+        },
+      );
+
       setState(() {
         _vehicleModels = models.items;
+        _totalRecords = models.totalCount;
         _isLoading = false;
       });
     } catch (error) {
@@ -120,155 +148,315 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
   }
 
   void _openEditScreen(VehicleModel vehicleModel) {
-    Navigator.of(context)
-        .push(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) {
-          return VehicleModelEditScreen(vehicleModel: vehicleModel);
-        },
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.easeInOut;
-          var tween =
-              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-          var offsetAnimation = animation.drive(tween);
-
-          return SlideTransition(
-            position: offsetAnimation,
-            child: child,
-          );
-        },
-      ),
-    )
-        .then((result) {
-      if (result == true) {
-        // Handle any updates or refresh the list as needed
-        // For example, you can call _loadVehicleModels() here to refresh the list.
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          insetPadding: EdgeInsets.zero,
+          content: SizedBox(
+            width: 500,
+            height: 400,
+            child: Stack(
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Vehicle Models',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1D1C1E),
-                      ),
-                    ),
-                    Text(
-                      'A summary of the Vehicle Models.',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Color(0xFF1D1C1E),
-                      ),
-                    ),
-                  ],
+                Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    padding: EdgeInsets.all(16),
+                    color: Colors.white,
+                    height: 300, 
+                    child: VehicleModelEditScreen(vehicleModel: vehicleModel),
+                  ),
                 ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // Handle the action to create a new vehicle model
-                  },
-                  icon: Icon(Icons.add, color: Colors.white),
-                  label: Text('New Vehicle Model'),
-                  style: ElevatedButton.styleFrom(
-                    primary: Color(0xFF1D1C1E),
-                    onPrimary: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: IconButton(
+                    icon: Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.of(context).pop('reload');
+                    },
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 16),
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Color(0xFFE0D8E0),
-                ),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Table(
-                border: TableBorder.all(
-                  color: Colors.transparent,
-                ),
-                children: [
-                  TableRow(
-                    decoration: BoxDecoration(
-                      color: Color(0xFFF7F1FB),
-                    ),
-                    children: [
-                      TableCellWidget(text: 'Name'),
-                      TableCellWidget(text: 'Vehicle Type'),
-                      TableCellWidget(text: 'Actions'),
-                    ],
+          ),
+        );
+      },
+    ).then((result) {
+      if (result == 'reload') {
+        _loadPagedVehicleModels();
+      }
+    });
+  }
+
+  void _openAddScreen() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          insetPadding: EdgeInsets.zero,
+          content: SizedBox(
+            width: 500,
+            height: 400,
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    padding: EdgeInsets.all(16),
+                    color: Colors.white,
+                    height: 300, 
+                    child: VehicleModelAddScreen(),
                   ),
-                  if (_isLoading)
-                    TableRow(
-                      children: [
-                        TableCellWidget(text: 'Loading...'),
-                        TableCellWidget(text: 'Loading...'),
-                        TableCellWidget(text: 'Loading...'),
-                      ],
-                    )
-                  else
-                    ..._vehicleModels.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final vehicleModel = entry.value;
-                      return TableRow(
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                        ),
-                        children: [
-                          TableCellWidget(text: vehicleModel.name ?? ''),
-                          TableCellWidget(
-                              text: getVehicleTypeString(
-                                  vehicleModel.vehicleType)),
-                          TableCell(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    _openEditScreen(
-                                        vehicleModel); // Open edit screen
-                                  },
-                                  icon: Icon(Icons.edit,
-                                      color: Color(0xFF1D1C1E)),
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    _deleteVehicleModel(index);
-                                  },
-                                  icon: Icon(Icons.delete,
-                                      color: Color(0xFF1D1C1E)),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      );
-                    }),
+                ),
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: IconButton(
+                    icon: Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.of(context).pop('reload');
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ).then((result) {
+      if (result == 'reload') {
+        _loadPagedVehicleModels();
+      }
+    });
+  }
+
+  // Function to handle page changes
+  void _handlePageChange(int newPage) {
+    setState(() {
+      _currentPage = newPage;
+    });
+
+    // Load vehicle models for the new page
+    _loadPagedVehicleModels();
+  }
+
+  @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Vehicle Models',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1D1C1E),
+                    ),
+                  ),
+                  Text(
+                    'A summary of the Vehicle Models.',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF1D1C1E),
+                    ),
+                  ),
                 ],
               ),
+              ElevatedButton.icon(
+                onPressed: _openAddScreen,
+                icon: Icon(Icons.add, color: Colors.white),
+                label: Text('New Vehicle Model'),
+                style: ElevatedButton.styleFrom(
+                  primary: Color(0xFF1D1C1E),
+                  onPrimary: Colors.white,
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: Container(
+                  width: 400,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                    border: Border.all(
+                      color: const Color(0xFF49464E),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                        _loadPagedVehicleModels();
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Search',
+                        border: InputBorder.none,
+                      ),
+                      style: TextStyle(
+                        color: Color(0xFF49464E),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                flex: 1,
+                child: Container(
+                  width: 400,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                    border: Border.all(
+                      color: const Color(0xFF49464E),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: DropdownButtonFormField<VehicleType>(
+                        value: _selectedVehicleType,
+                        onChanged: (newValue) {
+                          setState(() {
+                            _selectedVehicleType = newValue;
+                          });
+                          _loadPagedVehicleModels();
+                        },
+                        items: [
+                          DropdownMenuItem<VehicleType>(
+                            value: null,
+                            child: Text('Choose the vehicle type'),
+                          ),
+                          ...VehicleType.values.map((type) {
+                            return DropdownMenuItem<VehicleType>(
+                              value: type,
+                              child: Text(getVehicleTypeString(type)),
+                            );
+                          }).toList(),
+                        ],
+                        decoration: InputDecoration(
+                          labelText: 'Type',
+                          border: InputBorder.none,
+                        ),
+                        style: TextStyle(
+                          color: Color(0xFF49464E),
+                        ),
+                        icon: Container(
+                          alignment: Alignment.center,
+                          child: Icon(Icons.arrow_drop_down),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Color(0xFFE0D8E0),
+              ),
+              borderRadius: BorderRadius.circular(10),
             ),
-          ],
-        ),
+            child: Table(
+              border: TableBorder.all(
+                color: Colors.transparent,
+              ),
+              children: [
+                TableRow(
+                  decoration: BoxDecoration(
+                    color: Color(0xFFF7F1FB),
+                  ),
+                  children: [
+                    TableCellWidget(text: 'Name'),
+                    TableCellWidget(text: 'Vehicle Type'),
+                    TableCellWidget(text: 'Actions'),
+                  ],
+                ),
+                if (_isLoading)
+                  TableRow(
+                    children: [
+                      TableCellWidget(text: 'Loading...'),
+                      TableCellWidget(text: 'Loading...'),
+                      TableCellWidget(text: 'Loading...'),
+                    ],
+                  )
+                else
+                  ..._vehicleModels.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final vehicleModel = entry.value;
+                    return TableRow(
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                      ),
+                      children: [
+                        TableCellWidget(text: vehicleModel.name ?? ''),
+                        TableCellWidget(
+                            text: getVehicleTypeString(
+                                vehicleModel.vehicleType)),
+                        TableCell(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  _openEditScreen(
+                                      vehicleModel);
+                                },
+                                icon: Icon(Icons.edit,
+                                    color: Color(0xFF1D1C1E)),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  _deleteVehicleModel(index);
+                                },
+                                icon: Icon(Icons.delete,
+                                    color: Color(0xFF1D1C1E)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+              ],
+            ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+    
+    // Place the PagingComponent here at the bottom of the page
+    bottomNavigationBar: PagingComponent(
+      currentPage: _currentPage,
+      itemsPerPage: _itemsPerPage,
+      totalRecords: _totalRecords,
+      onPageChange: _handlePageChange,
+    ),
+  );
+}
 }

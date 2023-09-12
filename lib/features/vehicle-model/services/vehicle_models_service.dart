@@ -8,4 +8,5 @@ class VehicleModelsService extends BaseService<VehicleModel> {
   VehicleModel fromJson(data) {
     return VehicleModel.fromJson(data);
   }
+
 }

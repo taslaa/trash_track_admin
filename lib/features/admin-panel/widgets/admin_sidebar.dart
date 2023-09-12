@@ -17,7 +17,7 @@ class _AdminSidebarState extends State<AdminSidebar> {
   List<Map<String, dynamic>> entities = [
     {'name': 'Dashboard', 'icon': Icons.dashboard, 'route': 'dashboard'},
     {'name': 'Vehicle Model', 'icon': Icons.directions_car, 'route': 'vehicle_models'},
-    {'name': 'Vehicle Brand', 'icon': Icons.car_rental, 'route': 'vehicle_brands'},
+    {'name': 'Vehicle', 'icon': Icons.fire_truck_rounded, 'route': 'vehicles'},
     {'name': 'City', 'icon': Icons.location_city, 'route': 'cities'},
     {'name': 'Country', 'icon': Icons.public, 'route': 'countries'},
   ];

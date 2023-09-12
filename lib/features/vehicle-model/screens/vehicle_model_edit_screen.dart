@@ -5,7 +5,6 @@ import 'package:trash_track_admin/shared/services/enums_service.dart';
 
 class VehicleModelEditScreen extends StatefulWidget {
   final VehicleModel vehicleModel;
-  
 
   VehicleModelEditScreen({required this.vehicleModel});
 
@@ -19,7 +18,7 @@ class _VehicleModelEditScreenState extends State<VehicleModelEditScreen> {
   late int _selectedVehicleTypeIndex;
   late Map<int, String> _vehicleTypes;
   bool _isLoading = true;
-  final vehicleModelService = VehicleModelsService(); // Create an instance of your service.
+  final vehicleModelService = VehicleModelsService();
 
   @override
   void initState() {
@@ -40,20 +39,15 @@ class _VehicleModelEditScreenState extends State<VehicleModelEditScreen> {
     try {
       final typesData = await _enumsService.getVehicleTypes();
 
-      // Check if the received data is in the expected format (Map<int, String>).
       if (typesData is Map<int, String>) {
-        // Data is in the expected format, so update the state.
         setState(() {
           _vehicleTypes = typesData;
           _isLoading = false;
         });
       } else {
-        // Handle the case where the data format is unexpected.
         print('Received unexpected data format for vehicle types: $typesData');
-        // You may need to convert or parse the data here to match the expected format.
       }
     } catch (error) {
-      // Handle errors if any occur during the data fetching process.
       print('Error fetching vehicle types: $error');
     }
   }
@@ -61,65 +55,112 @@ class _VehicleModelEditScreenState extends State<VehicleModelEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Edit Vehicle Model'),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextFormField(
-              controller: _nameController,
-              decoration: InputDecoration(labelText: 'Name'),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0), // Add vertical padding
+              child: Container(
+                width: 400,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.white,
+                  border: Border.all(
+                    color: const Color(0xFF49464E),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0), // Add horizontal padding
+                  child: TextFormField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Name',
+                      border: InputBorder.none,
+                    ),
+                    style: const TextStyle(
+                      color: Color(0xFF49464E),
+                    ),
+                  ),
+                ),
+              ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _isLoading
                 ? CircularProgressIndicator()
-                : DropdownButtonFormField<int>(
-                    value: _selectedVehicleTypeIndex,
-                    onChanged: (newValue) {
-                      setState(() {
-                        _selectedVehicleTypeIndex = newValue ?? 0;
-                      });
-                    },
-                    items: _vehicleTypes.entries.map((entry) {
-                      return DropdownMenuItem<int>(
-                        value: entry.key,
-                        child: Text(entry.value),
-                      );
-                    }).toList(),
-                    decoration: InputDecoration(labelText: 'Vehicle Type'),
+                : Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0), // Add vertical padding
+                    child: Container(
+                      width: 400,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.white,
+                        border: Border.all(
+                          color: Color(0xFF49464E),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0), // Add horizontal padding
+                        child: DropdownButtonFormField<int>(
+                          value: _selectedVehicleTypeIndex,
+                          onChanged: (newValue) {
+                            setState(() {
+                              _selectedVehicleTypeIndex = newValue ?? 0;
+                            });
+                          },
+                          items: _vehicleTypes.entries.map((entry) {
+                            return DropdownMenuItem<int>(
+                              value: entry.key,
+                              child: Text(entry.value),
+                            );
+                          }).toList(),
+                          decoration: InputDecoration(
+                            labelText: 'Vehicle Type',
+                            border: InputBorder.none,
+                          ),
+                          style: TextStyle(
+                            color: Color(0xFF49464E),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
-                final selectedVehicleType = VehicleType.values[_selectedVehicleTypeIndex];
+                final selectedVehicleType =
+                    VehicleType.values[_selectedVehicleTypeIndex];
 
-                // Capture the edited data
                 final editedName = _nameController.text;
 
-                // Update the VehicleModel
                 final editedVehicleModel = VehicleModel(
                   id: widget.vehicleModel.id,
                   name: editedName,
                   vehicleType: selectedVehicleType,
-                  // Add any other fields as needed
                 );
 
                 try {
-                  // Call the update method from your service
                   await vehicleModelService.update(editedVehicleModel);
 
-                  // After saving, navigate back to VehicleModelsScreen or take any other action.
-                  Navigator.of(context).pop(); // Pop the current screen to return to the previous screen.
+                  Navigator.pop(context, 'reload');
                 } catch (error) {
-                  // Handle errors if the save operation fails.
                   print('Error saving vehicle model: $error');
-                  // You may display an error message to the user.
                 }
               },
-              child: Text('Save'),
+              child: Text(
+                'Save',
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                primary: Color(0xFF49464E),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                minimumSize: Size(400, 48),
+              ),
             ),
           ],
         ),
