@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:trash_track_admin/features/admin-panel/widgets/admin_header.dart';
 import 'package:trash_track_admin/features/admin-panel/widgets/admin_sidebar.dart';
 import 'package:trash_track_admin/features/dashboard/screens/dashboard_screen.dart';
-import 'package:trash_track_admin/features/user/services/auth_service.dart';
-import 'package:trash_track_admin/features/vehicle-model/models/vehicle_model.dart';
 import 'package:trash_track_admin/features/vehicle-model/screens/vehicle_models_screen.dart';
 import 'package:trash_track_admin/features/vehicle/screens/vehicles_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 
 class AdminPanelScreen extends StatefulWidget {
   @override
@@ -21,6 +20,30 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     setState(() {
       selectedRoute = route;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserNameFromToken();
+  }
+
+  _loadUserNameFromToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    print('Token: $token');
+
+    if (token != null) {
+      Map<String, dynamic> decodedToken = Jwt.parseJwt(token);
+
+      String firstName = decodedToken['FirstName'];
+      String lastName = decodedToken['LastName'];
+
+      setState(() {
+        userName = '$firstName $lastName';
+      });
+    }
   }
 
   @override

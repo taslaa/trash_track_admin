@@ -24,7 +24,6 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
   VehicleType? _selectedVehicleType;
   String _searchQuery = '';
 
-  // Paging variables
   int _currentPage = 1;
   int _itemsPerPage = 3;
   int _totalRecords = 0;
@@ -357,7 +356,6 @@ Widget build(BuildContext context) {
                           }).toList(),
                         ],
                         decoration: InputDecoration(
-                          labelText: 'Type',
                           border: InputBorder.none,
                         ),
                         style: TextStyle(

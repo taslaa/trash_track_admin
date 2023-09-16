@@ -2,17 +2,25 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:jwt_decode/jwt_decode.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService extends ChangeNotifier {
-  String? _userName;
-  String? get userName => _userName;
   static String? _baseUrl;
   String _endpoint = "api/Access/SignIn";
- 
+
   AuthService() {
     _baseUrl = const String.fromEnvironment("baseUrl",
         defaultValue: "https://localhost:7090/");
+  }
+
+  Future<void> signOut(BuildContext context) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.remove('token');
+      Navigator.of(context).pushNamed('/login');
+    } catch (error) {
+      print('Error during sign out: $error');
+    }
   }
 
   Future<dynamic> signIn(String em, String ps) async {
@@ -22,29 +30,28 @@ class AuthService extends ChangeNotifier {
     var uri = Uri.parse(url);
     var jsonRequest = jsonEncode({'email': em, 'password': ps});
 
-    Response response = await post(uri,
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonRequest);
+    Response response = await post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonRequest,
+    );
 
     if (isValidResponse(response)) {
       var data = jsonDecode(response.body);
-
       var result = data;
-
       String? token = result['token'];
 
       if (token != null) {
-        // Decode the JWT token
-        Map<String, dynamic> decodedToken = Jwt.parseJwt(token);
-
-        _userName = decodedToken['FirstName'] + ' ' + decodedToken['LastName'];
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('token', token);
+        print('Token: $token');
       }
 
       return result;
     } else {
-      throw  Exception("Unknown error");
+      throw Exception("Unknown error");
     }
   }
 
@@ -64,7 +71,7 @@ class AuthService extends ChangeNotifier {
 
     if (isValidResponse(response)) {
     } else {
-      throw  Exception("Unknown error");
+      throw Exception("Unknown error");
     }
   }
 }
