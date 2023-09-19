@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:trash_track_admin/features/admin-panel/widgets/admin_header.dart';
 import 'package:trash_track_admin/features/admin-panel/widgets/admin_sidebar.dart';
 import 'package:trash_track_admin/features/dashboard/screens/dashboard_screen.dart';
+import 'package:trash_track_admin/features/garbage/screens/add-garbage.dart';
+import 'package:trash_track_admin/features/garbage/screens/garbage-map.dart';
 import 'package:trash_track_admin/features/vehicle-model/screens/vehicle_models_screen.dart';
 import 'package:trash_track_admin/features/vehicle/screens/vehicles_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -86,7 +88,11 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
       case 'vehicle_models':
         return VehicleModelsScreen();
       case 'vehicles':
-        return VehiclesScreen(); // Replace 'VehicleModelsScreen' with your actual screen
+        return VehiclesScreen();
+      case 'garbage':
+        return AddPlaceScreen();
+      case 'garbage-map':
+        return GarbageMapScreen();
       default:
         return const Text(
           'Welcome to the Admin Panel!',

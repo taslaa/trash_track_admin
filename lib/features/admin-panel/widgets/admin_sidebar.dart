@@ -26,6 +26,8 @@ class _AdminSidebarState extends State<AdminSidebar> {
     {'name': 'Vehicle', 'icon': Icons.fire_truck_rounded, 'route': 'vehicles'},
     {'name': 'City', 'icon': Icons.location_city, 'route': 'cities'},
     {'name': 'Country', 'icon': Icons.public, 'route': 'countries'},
+    {'name': 'Garabge', 'icon': Icons.delete, 'route': 'garbage'},
+    {'name': 'Garabge map', 'icon': Icons.map, 'route': 'garbage-map'},
   ];
 
  @override

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trash_track_admin/features/garbage/services/garbages_service.dart';
 import 'package:trash_track_admin/features/user/screens/login_screen.dart'; // Import your LoginScreen
 import 'package:trash_track_admin/features/user/services/auth_service.dart';
 import 'package:trash_track_admin/features/vehicle-model/services/vehicle_models_service.dart';
@@ -10,6 +11,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (create) => VehicleModelsService()),
         ChangeNotifierProvider(create: (context) => AuthService()),
+        ChangeNotifierProvider(create: (context) => GarbageService()),
       ],
       child: const MyApp(),
     ),

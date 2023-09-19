@@ -23,7 +23,8 @@ class Garbage {
 }
 
 enum GarbageType {
-  type1,
-  type2,
-  type3,
+  plastic,
+  glass,
+  metal,
+  organic
 }
