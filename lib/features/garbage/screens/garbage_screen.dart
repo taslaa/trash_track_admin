@@ -2,33 +2,29 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trash_track_admin/features/vehicle-model/models/vehicle_model.dart';
-import 'package:trash_track_admin/features/vehicle-model/services/vehicle_models_service.dart';
-import 'package:trash_track_admin/features/vehicle-model/widgets/table_cell.dart';
-import 'package:trash_track_admin/features/vehicle-model/widgets/paging_component.dart';
+import 'package:trash_track_admin/features/garbage/models/garbage.dart';
+import 'package:trash_track_admin/features/garbage/services/garbage_service.dart';
+import 'package:trash_track_admin/features/garbage/widgets/table_cell.dart';
+import 'package:trash_track_admin/features/garbage/widgets/paging_component.dart';
 
-class VehicleModelsScreen extends StatefulWidget {
-  const VehicleModelsScreen({
-    Key? key,
-    this.vehicleModel,
-    required this.onEdit,
-    required this.onAdd,
-  }) : super(key: key);
-  final VehicleModel? vehicleModel;
-  final Function(VehicleModel) onEdit;
+class GarbageScreen extends StatefulWidget {
+  const GarbageScreen({Key? key, this.garbage, required this.onAdd})
+      : super(key: key);
+
+  final Garbage? garbage;
   final Function() onAdd;
 
   @override
-  _VehicleModelsScreenState createState() => _VehicleModelsScreenState();
+  _GarbageScreenState createState() => _GarbageScreenState();
 }
 
-class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
-  late VehicleModelsService _modelProvider;
+class _GarbageScreenState extends State<GarbageScreen> {
+  late GarbageService _gargbageService;
   Map<String, dynamic> _initialValue = {};
   bool _isLoading = true;
-  List<VehicleModel> _vehicleModels = [];
+  List<Garbage> _garbageModels = [];
 
-  VehicleType? _selectedVehicleType;
+  GarbageType? _selectedGarbageType;
   String _searchQuery = '';
 
   int _currentPage = 1;
@@ -38,40 +34,31 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
   @override
   void initState() {
     super.initState();
-    _modelProvider = context.read<VehicleModelsService>();
+    _gargbageService = context.read<GarbageService>();
     _initialValue = {
-      'id': widget.vehicleModel?.id.toString(),
-      'name': widget.vehicleModel?.name,
-      'vehicleType': widget.vehicleModel?.vehicleType.toString(),
+      'id': widget.garbage?.id.toString(),
+      'address': widget.garbage?.address,
+      'garbageType': widget.garbage?.garbageType,
+      'latitude': widget.garbage?.latitude,
+      'longitude': widget.garbage?.longitude,
     };
 
-    _loadPagedVehicleModels();
+    _loadPagedGarbageModels();
   }
 
-  String convertToEnumValue(VehicleType? selectedValue) {
-    switch (selectedValue) {
-      case VehicleType.truck:
-        return 'Truck';
-      case VehicleType.garbageTruck:
-        return 'GarbageTruck';
-      default:
-        return '';
-    }
-  }
-
-  Future<void> _loadPagedVehicleModels() async {
+  Future<void> _loadPagedGarbageModels() async {
     try {
-      final models = await _modelProvider.getPaged(
+      final models = await _gargbageService.getPaged(
         filter: {
           'query': _searchQuery,
-          'type': convertToEnumValue(_selectedVehicleType),
+          'type': mapGarbageTypeToString(_selectedGarbageType),
           'pageNumber': _currentPage,
           'pageSize': _itemsPerPage,
         },
       );
 
       setState(() {
-        _vehicleModels = models.items;
+        _garbageModels = models.items;
         _totalRecords = models.totalCount;
         _isLoading = false;
       });
@@ -80,33 +67,34 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
     }
   }
 
-  String getVehicleTypeString(VehicleType? vehicleType) {
-    if (vehicleType == null) {
-      return 'Unknown';
-    }
-    switch (vehicleType) {
-      case VehicleType.truck:
-        return 'Truck';
-      case VehicleType.garbageTruck:
-        return 'Garbage Truck';
+  String mapGarbageTypeToString(GarbageType? garbageType) {
+    switch (garbageType) {
+      case GarbageType.plastic:
+        return 'Plastic';
+      case GarbageType.glass:
+        return 'Glass';
+      case GarbageType.metal:
+        return 'Metal';
+      case GarbageType.organic:
+        return 'Organic';
       default:
-        return 'Unknown';
+        return garbageType.toString(); // Default to enum value if not found
     }
   }
 
-  void _deleteVehicleModel(int index) {
-    final vehicleModel = _vehicleModels[index];
-    final id = vehicleModel.id ?? 0;
+  void _deleteGarbageModel(int index) {
+    final garbageModel = _garbageModels[index];
+    final id = garbageModel.id ?? 0;
 
     _showDeleteConfirmationDialog(() async {
       try {
-        await _modelProvider.remove(id);
+        await _gargbageService.remove(id);
 
         setState(() {
-          _vehicleModels.removeAt(index);
+          _garbageModels.removeAt(index);
         });
       } catch (error) {
-        print('Error deleting vehicle model: $error');
+        print('Error deleting garbage model: $error');
       }
     });
   }
@@ -117,11 +105,11 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Vehicle Model'),
+          title: Text('Delete Garbage Model'),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Are you sure you want to delete this vehicle model?'),
+                Text('Are you sure you want to delete this garbage model?'),
               ],
             ),
           ),
@@ -153,9 +141,9 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
     );
   }
 
-  void _onEdit(VehicleModel vehicleModel) async {
-    widget.onEdit(vehicleModel);
-  }
+  // void _onEdit(Garbage garbage) async {
+  //   widget.onEdit(garbage);
+  // }
 
   void _onAdd() async {
     widget.onAdd();
@@ -166,7 +154,7 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
       _currentPage = newPage;
     });
 
-    _loadPagedVehicleModels();
+    _loadPagedGarbageModels();
   }
 
   @override
@@ -184,7 +172,7 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Vehicle Models',
+                      'Garbage',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -192,7 +180,7 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                       ),
                     ),
                     Text(
-                      'A summary of the Vehicle Models.',
+                      'A summary of the Garbage.',
                       style: TextStyle(
                         fontSize: 16,
                         color: Color(0xFF1D1C1E),
@@ -205,7 +193,7 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                     _onAdd();
                   },
                   icon: Icon(Icons.add, color: Colors.white),
-                  label: Text('New Vehicle Model'),
+                  label: Text('New Garbage'),
                   style: ElevatedButton.styleFrom(
                     primary: Color(0xFF1D1C1E),
                     onPrimary: Colors.white,
@@ -235,7 +223,7 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                           setState(() {
                             _searchQuery = value;
                           });
-                          _loadPagedVehicleModels();
+                          _loadPagedGarbageModels();
                         },
                         decoration: InputDecoration(
                           labelText: 'Search',
@@ -264,23 +252,25 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Container(
                         alignment: Alignment.center,
-                        child: DropdownButtonFormField<VehicleType>(
-                          value: _selectedVehicleType,
+                        child: DropdownButtonFormField<GarbageType>(
+                          value: _selectedGarbageType,
                           onChanged: (newValue) {
+                            print(newValue);
                             setState(() {
-                              _selectedVehicleType = newValue;
+                              _selectedGarbageType = newValue;
                             });
-                            _loadPagedVehicleModels();
+                            _loadPagedGarbageModels();
                           },
                           items: [
-                            DropdownMenuItem<VehicleType>(
+                            DropdownMenuItem<GarbageType>(
                               value: null,
-                              child: Text('Choose the vehicle type'),
+                              child: Text('Choose the garbage type'),
                             ),
-                            ...VehicleType.values.map((type) {
-                              return DropdownMenuItem<VehicleType>(
+                            ...GarbageType.values.map((type) {
+                              return DropdownMenuItem<GarbageType>(
                                 value: type,
-                                child: Text(getVehicleTypeString(type)),
+                                child: Text(mapGarbageTypeToString(
+                                    type)), 
                               );
                             }).toList(),
                           ],
@@ -319,8 +309,8 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                       color: Color(0xFFF7F1FB),
                     ),
                     children: [
-                      TableCellWidget(text: 'Name'),
-                      TableCellWidget(text: 'Vehicle Type'),
+                      TableCellWidget(text: 'Address'),
+                      TableCellWidget(text: 'Garbage Type'),
                       TableCellWidget(text: 'Actions'),
                     ],
                   ),
@@ -333,32 +323,32 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                       ],
                     )
                   else
-                    ..._vehicleModels.asMap().entries.map((entry) {
+                    ..._garbageModels.asMap().entries.map((entry) {
                       final index = entry.key;
-                      final vehicleModel = entry.value;
+                      final garbageModel = entry.value;
                       return TableRow(
                         decoration: BoxDecoration(
                           color: Colors.transparent,
                         ),
                         children: [
-                          TableCellWidget(text: vehicleModel.name ?? ''),
+                          TableCellWidget(text: garbageModel.address ?? ''),
                           TableCellWidget(
-                              text: getVehicleTypeString(
-                                  vehicleModel.vehicleType)),
+                              text: mapGarbageTypeToString(
+                                  garbageModel.garbageType!)),
                           TableCell(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 IconButton(
                                   onPressed: () {
-                                    _onEdit(vehicleModel);
+                                    //_onEdit(garbageModel);
                                   },
                                   icon: Icon(Icons.edit,
                                       color: Color(0xFF1D1C1E)),
                                 ),
                                 IconButton(
                                   onPressed: () {
-                                    _deleteVehicleModel(index);
+                                    _deleteGarbageModel(index);
                                   },
                                   icon: Icon(Icons.delete,
                                       color: Color(0xFF1D1C1E)),
@@ -375,7 +365,6 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
           ],
         ),
       ),
-
       bottomNavigationBar: PagingComponent(
         currentPage: _currentPage,
         itemsPerPage: _itemsPerPage,

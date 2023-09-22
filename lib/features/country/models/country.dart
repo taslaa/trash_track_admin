@@ -4,11 +4,12 @@ part 'country.g.dart';
 
 @JsonSerializable()
 class Country {
+  int? id;
   String? name;
   String? abbreviation;
   bool? isActive;
 
-  Country({this.name, this.abbreviation, this.isActive});
+  Country({this.id, this.name, this.abbreviation, this.isActive});
 
   factory Country.fromJson(Map<String, dynamic> json) =>
       _$CountryFromJson(json);

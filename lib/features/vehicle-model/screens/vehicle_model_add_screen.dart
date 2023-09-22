@@ -4,6 +4,10 @@ import 'package:trash_track_admin/features/vehicle-model/services/vehicle_models
 import 'package:trash_track_admin/shared/services/enums_service.dart';
 
 class VehicleModelAddScreen extends StatefulWidget {
+  final Function(String) onUpdateRoute;
+
+  VehicleModelAddScreen({required this.onUpdateRoute});
+
   @override
   _VehicleModelAddScreenState createState() => _VehicleModelAddScreenState();
 }
@@ -21,7 +25,7 @@ class _VehicleModelAddScreenState extends State<VehicleModelAddScreen> {
     super.initState();
     _enumsService = EnumsService();
     _nameController = TextEditingController();
-    _selectedVehicleTypeIndex = 0; // Set the default vehicle type
+    _selectedVehicleTypeIndex = 0; 
     _fetchVehicleTypes();
   }
 
@@ -35,58 +39,58 @@ class _VehicleModelAddScreenState extends State<VehicleModelAddScreen> {
     try {
       final typesData = await _enumsService.getVehicleTypes();
 
-      if (typesData is Map<int, String>) {
-        setState(() {
-          _vehicleTypes = typesData;
-          _isLoading = false;
-        });
+       if (typesData is Map<int, String>) {
+         setState(() {
+           _vehicleTypes = typesData;
+           _isLoading = false;
+         });
       } else {
-        print('Received unexpected data format for vehicle types: $typesData');
-      }
+         print('Received unexpected data format for vehicle types: $typesData');
+       }
     } catch (error) {
       print('Error fetching vehicle types: $error');
     }
   }
 
+  void _goBack() {
+    widget.onUpdateRoute('vehicle_models');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Container(
-                  width: 400,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.white,
-                    border: Border.all(
-                      color: const Color(0xFF49464E),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: TextFormField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Name',
-                        border: InputBorder.none,
-                      ),
-                      style: const TextStyle(
-                        color: Color(0xFF49464E),
-                      ),
-                    ),
-                  ),
-                ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GestureDetector(
+            onTap: () {
+              _goBack();
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Icon(
+                Icons.arrow_back,
+                size: 32.0, 
               ),
-              const SizedBox(height: 16),
-              _isLoading
-                  ? CircularProgressIndicator()
-                  : Padding(
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Add Vehicle Model',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Container(
                         width: 400,
@@ -94,73 +98,107 @@ class _VehicleModelAddScreenState extends State<VehicleModelAddScreen> {
                           borderRadius: BorderRadius.circular(10),
                           color: Colors.white,
                           border: Border.all(
-                            color: Color(0xFF49464E),
+                            color: const Color(0xFF49464E),
                           ),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: DropdownButtonFormField<int>(
-                            value: _selectedVehicleTypeIndex,
-                            onChanged: (newValue) {
-                              setState(() {
-                                _selectedVehicleTypeIndex = newValue ?? 0;
-                              });
-                            },
-                            items: _vehicleTypes.entries.map((entry) {
-                              return DropdownMenuItem<int>(
-                                value: entry.key,
-                                child: Text(entry.value),
-                              );
-                            }).toList(),
-                            decoration: InputDecoration(
-                              labelText: 'Vehicle Type',
+                          child: TextFormField(
+                            controller: _nameController,
+                            decoration: const InputDecoration(
+                              labelText: 'Name',
                               border: InputBorder.none,
                             ),
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Color(0xFF49464E),
                             ),
                           ),
                         ),
                       ),
                     ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () async {
-                  final selectedVehicleType =
-                      VehicleType.values[_selectedVehicleTypeIndex];
+                    const SizedBox(height: 16),
+                    _isLoading
+                        ? CircularProgressIndicator()
+                        : Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Container(
+                              width: 400,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.white,
+                                border: Border.all(
+                                  color: Color(0xFF49464E),
+                                ),
+                              ),
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 16.0),
+                                child: DropdownButtonFormField<int>(
+                                  value: _selectedVehicleTypeIndex,
+                                  onChanged: (newValue) {
+                                    setState(() {
+                                      _selectedVehicleTypeIndex =
+                                          newValue ?? 0;
+                                    });
+                                  },
+                                  items: _vehicleTypes.entries.map((entry) {
+                                    return DropdownMenuItem<int>(
+                                      value: entry.key,
+                                      child: Text(entry.value),
+                                    );
+                                  }).toList(),
+                                  decoration: InputDecoration(
+                                    labelText: 'Vehicle Type',
+                                    border: InputBorder.none,
+                                  ),
+                                  style: TextStyle(
+                                    color: Color(0xFF49464E),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final selectedVehicleType =
+                            VehicleType.values[_selectedVehicleTypeIndex];
 
-                  final newName = _nameController.text;
+                        final newName = _nameController.text;
 
-                  final newVehicleModel = VehicleModel(
-                    name: newName,
-                    vehicleType: selectedVehicleType,
-                  );
+                        final newVehicleModel = VehicleModel(
+                          name: newName,
+                          vehicleType: selectedVehicleType,
+                        );
 
-                  try {
-                    await vehicleModelService.insert(newVehicleModel);
+                        try {
+                          await vehicleModelService.insert(newVehicleModel);
 
-                    Navigator.pop(context, 'reload');
-                  } catch (error) {
-                    print('Error adding vehicle model: $error');
-                  }
-                },
-                child: Text(
-                  'Add',
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  primary: Color(0xFF49464E),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  minimumSize: Size(400, 48),
+                          widget.onUpdateRoute('vehicle_models');
+                        } catch (error) {
+                          print('Error adding vehicle model: $error');
+                        }
+                      },
+                      child: Text(
+                        'Add',
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        primary: Color(0xFF49464E),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        minimumSize: Size(400, 48),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

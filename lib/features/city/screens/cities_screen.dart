@@ -1,78 +1,63 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:trash_track_admin/features/vehicle-model/models/vehicle_model.dart';
-import 'package:trash_track_admin/features/vehicle-model/services/vehicle_models_service.dart';
-import 'package:trash_track_admin/features/vehicle-model/widgets/table_cell.dart';
-import 'package:trash_track_admin/features/vehicle-model/widgets/paging_component.dart';
+import 'package:trash_track_admin/features/city/models/city.dart';
+import 'package:trash_track_admin/features/city/services/cities_service.dart';
+import 'package:trash_track_admin/features/city/widgets/table_cell.dart';
+import 'package:trash_track_admin/features/country/models/country.dart';
+import 'package:trash_track_admin/features/country/services/countries_service.dart';
+import 'package:trash_track_admin/shared/widgets/paging_component.dart';
 
-class VehicleModelsScreen extends StatefulWidget {
-  const VehicleModelsScreen({
+class CitiesScreen extends StatefulWidget {
+  const CitiesScreen({
     Key? key,
-    this.vehicleModel,
+    this.city,
     required this.onEdit,
     required this.onAdd,
   }) : super(key: key);
-  final VehicleModel? vehicleModel;
-  final Function(VehicleModel) onEdit;
+
+  final City? city;
+  final Function(City) onEdit;
   final Function() onAdd;
 
   @override
-  _VehicleModelsScreenState createState() => _VehicleModelsScreenState();
+  _CitiesScreenState createState() => _CitiesScreenState();
 }
 
-class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
-  late VehicleModelsService _modelProvider;
-  Map<String, dynamic> _initialValue = {};
+class _CitiesScreenState extends State<CitiesScreen> {
+  late CitiesService _citiesService;
+  late CountriesService _countriesService;
   bool _isLoading = true;
-  List<VehicleModel> _vehicleModels = [];
-
-  VehicleType? _selectedVehicleType;
-  String _searchQuery = '';
-
+  List<City> _cities = [];
+  List<Country> _countries = [];
   int _currentPage = 1;
   int _itemsPerPage = 3;
   int _totalRecords = 0;
+  String _cityName = '';
+  String? _selectedCountryId;
 
   @override
   void initState() {
     super.initState();
-    _modelProvider = context.read<VehicleModelsService>();
-    _initialValue = {
-      'id': widget.vehicleModel?.id.toString(),
-      'name': widget.vehicleModel?.name,
-      'vehicleType': widget.vehicleModel?.vehicleType.toString(),
-    };
-
-    _loadPagedVehicleModels();
+    _citiesService = CitiesService();
+    _countriesService = CountriesService();
+    _selectedCountryId = '';
+    _loadCities();
+    _loadCountries();
   }
 
-  String convertToEnumValue(VehicleType? selectedValue) {
-    switch (selectedValue) {
-      case VehicleType.truck:
-        return 'Truck';
-      case VehicleType.garbageTruck:
-        return 'GarbageTruck';
-      default:
-        return '';
-    }
-  }
-
-  Future<void> _loadPagedVehicleModels() async {
+  Future<void> _loadCities() async {
     try {
-      final models = await _modelProvider.getPaged(
+      final cities = await _citiesService.getPaged(
         filter: {
-          'query': _searchQuery,
-          'type': convertToEnumValue(_selectedVehicleType),
+          'countryId': _selectedCountryId,
+          'name': _cityName,
           'pageNumber': _currentPage,
           'pageSize': _itemsPerPage,
         },
       );
 
       setState(() {
-        _vehicleModels = models.items;
-        _totalRecords = models.totalCount;
+        _cities = cities.items;
+        _totalRecords = cities.totalCount;
         _isLoading = false;
       });
     } catch (error) {
@@ -80,33 +65,30 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
     }
   }
 
-  String getVehicleTypeString(VehicleType? vehicleType) {
-    if (vehicleType == null) {
-      return 'Unknown';
-    }
-    switch (vehicleType) {
-      case VehicleType.truck:
-        return 'Truck';
-      case VehicleType.garbageTruck:
-        return 'Garbage Truck';
-      default:
-        return 'Unknown';
+  Future<void> _loadCountries() async {
+    try {
+      final countries = await _countriesService.getPaged();
+      setState(() {
+        _countries = countries.items;
+      });
+    } catch (error) {
+      print('Error loading countries: $error');
     }
   }
 
-  void _deleteVehicleModel(int index) {
-    final vehicleModel = _vehicleModels[index];
-    final id = vehicleModel.id ?? 0;
+  void _deleteCity(int index) {
+    final city = _cities[index];
+    final id = city.id ?? 0;
 
     _showDeleteConfirmationDialog(() async {
       try {
-        await _modelProvider.remove(id);
+        await _citiesService.remove(id);
 
         setState(() {
-          _vehicleModels.removeAt(index);
+          _cities.removeAt(index);
         });
       } catch (error) {
-        print('Error deleting vehicle model: $error');
+        print('Error deleting city: $error');
       }
     });
   }
@@ -117,11 +99,11 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Vehicle Model'),
+          title: Text('Delete City'),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Are you sure you want to delete this vehicle model?'),
+                Text('Are you sure you want to delete this city?'),
               ],
             ),
           ),
@@ -139,9 +121,9 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                primary: Colors.red,
-                onPrimary: Colors.white,
-              ),
+                  primary: Colors.white,
+                  onPrimary: Color(0xFF1D1C1E),
+                  shadowColor: Colors.white),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -153,20 +135,12 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
     );
   }
 
-  void _onEdit(VehicleModel vehicleModel) async {
-    widget.onEdit(vehicleModel);
+  void _onEdit(City city) async {
+    widget.onEdit(city);
   }
 
   void _onAdd() async {
     widget.onAdd();
-  }
-
-  void _handlePageChange(int newPage) {
-    setState(() {
-      _currentPage = newPage;
-    });
-
-    _loadPagedVehicleModels();
   }
 
   @override
@@ -184,7 +158,7 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Vehicle Models',
+                      'Cities',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -192,7 +166,7 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                       ),
                     ),
                     Text(
-                      'A summary of the Vehicle Models.',
+                      'A summary of the Cities.',
                       style: TextStyle(
                         fontSize: 16,
                         color: Color(0xFF1D1C1E),
@@ -205,7 +179,7 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                     _onAdd();
                   },
                   icon: Icon(Icons.add, color: Colors.white),
-                  label: Text('New Vehicle Model'),
+                  label: Text('New City'),
                   style: ElevatedButton.styleFrom(
                     primary: Color(0xFF1D1C1E),
                     onPrimary: Colors.white,
@@ -233,12 +207,12 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                       child: TextField(
                         onChanged: (value) {
                           setState(() {
-                            _searchQuery = value;
+                            _cityName = value;
                           });
-                          _loadPagedVehicleModels();
+                          _loadCities();
                         },
                         decoration: InputDecoration(
-                          labelText: 'Search',
+                          labelText: 'Search by Name',
                           border: InputBorder.none,
                         ),
                         style: TextStyle(
@@ -262,38 +236,29 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: DropdownButtonFormField<VehicleType>(
-                          value: _selectedVehicleType,
-                          onChanged: (newValue) {
-                            setState(() {
-                              _selectedVehicleType = newValue;
-                            });
-                            _loadPagedVehicleModels();
-                          },
-                          items: [
-                            DropdownMenuItem<VehicleType>(
-                              value: null,
-                              child: Text('Choose the vehicle type'),
-                            ),
-                            ...VehicleType.values.map((type) {
-                              return DropdownMenuItem<VehicleType>(
-                                value: type,
-                                child: Text(getVehicleTypeString(type)),
-                              );
-                            }).toList(),
-                          ],
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
+                      child: DropdownButtonFormField<String>(
+                        value: _selectedCountryId,
+                        onChanged: (countryId) {
+                          setState(() {
+                            _selectedCountryId = countryId;
+                          });
+                          _loadCities();
+                        },
+                        items: [
+                          DropdownMenuItem<String>(
+                            value: '',
+                            child: Text('Choose a country'),
                           ),
-                          style: TextStyle(
-                            color: Color(0xFF49464E),
-                          ),
-                          icon: Container(
-                            alignment: Alignment.center,
-                            child: Icon(Icons.arrow_drop_down),
-                          ),
+                          ..._countries.map((country) {
+                            return DropdownMenuItem<String>(
+                              value: country.id.toString(),
+                              child: Text(country.name ?? ''),
+                            );
+                          }).toList(),
+                        ],
+                        decoration: InputDecoration(
+                          labelText: 'Filter by Country',
+                          border: InputBorder.none,
                         ),
                       ),
                     ),
@@ -320,7 +285,9 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                     ),
                     children: [
                       TableCellWidget(text: 'Name'),
-                      TableCellWidget(text: 'Vehicle Type'),
+                      TableCellWidget(text: 'Zip Code'),
+                      TableCellWidget(text: 'Active'),
+                      TableCellWidget(text: 'Country'),
                       TableCellWidget(text: 'Actions'),
                     ],
                   ),
@@ -330,35 +297,45 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                         TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
+                        TableCellWidget(text: 'Loading...'),
+                        TableCellWidget(text: 'Loading...'),
                       ],
                     )
                   else
-                    ..._vehicleModels.asMap().entries.map((entry) {
+                    ..._cities.asMap().entries.map((entry) {
                       final index = entry.key;
-                      final vehicleModel = entry.value;
+                      final city = entry.value;
                       return TableRow(
                         decoration: BoxDecoration(
                           color: Colors.transparent,
                         ),
                         children: [
-                          TableCellWidget(text: vehicleModel.name ?? ''),
+                          TableCellWidget(text: city.name ?? ''),
+                          TableCellWidget(text: city.zipCode ?? ''),
                           TableCellWidget(
-                              text: getVehicleTypeString(
-                                  vehicleModel.vehicleType)),
+                            text: city.isActive != null
+                                ? city.isActive!
+                                    ? 'Yes'
+                                    : 'No'
+                                : '',
+                          ),
+                          TableCellWidget(
+                            text: city.country?.name ?? '',
+                          ),
                           TableCell(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 IconButton(
                                   onPressed: () {
-                                    _onEdit(vehicleModel);
+                                    _onEdit(city);
                                   },
                                   icon: Icon(Icons.edit,
                                       color: Color(0xFF1D1C1E)),
                                 ),
                                 IconButton(
                                   onPressed: () {
-                                    _deleteVehicleModel(index);
+                                    _deleteCity(index);
                                   },
                                   icon: Icon(Icons.delete,
                                       color: Color(0xFF1D1C1E)),
@@ -375,12 +352,16 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
           ],
         ),
       ),
-
       bottomNavigationBar: PagingComponent(
         currentPage: _currentPage,
         itemsPerPage: _itemsPerPage,
         totalRecords: _totalRecords,
-        onPageChange: _handlePageChange,
+        onPageChange: (newPage) {
+          setState(() {
+            _currentPage = newPage;
+          });
+          _loadCities();
+        },
       ),
     );
   }

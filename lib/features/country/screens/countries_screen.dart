@@ -1,35 +1,31 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trash_track_admin/features/vehicle-model/models/vehicle_model.dart';
-import 'package:trash_track_admin/features/vehicle-model/services/vehicle_models_service.dart';
-import 'package:trash_track_admin/features/vehicle-model/widgets/table_cell.dart';
-import 'package:trash_track_admin/features/vehicle-model/widgets/paging_component.dart';
+import 'package:trash_track_admin/features/country/models/country.dart';
+import 'package:trash_track_admin/features/country/screens/country_edit_screen.dart';
+import 'package:trash_track_admin/features/country/services/countries_service.dart';
+import 'package:trash_track_admin/features/country/widgets/table_cell.dart';
+import 'package:trash_track_admin/features/country/widgets/paging_component.dart';
 
-class VehicleModelsScreen extends StatefulWidget {
-  const VehicleModelsScreen({
-    Key? key,
-    this.vehicleModel,
-    required this.onEdit,
-    required this.onAdd,
-  }) : super(key: key);
-  final VehicleModel? vehicleModel;
-  final Function(VehicleModel) onEdit;
+class CountriesScreen extends StatefulWidget {
+  const CountriesScreen({Key? key, this.country, required this.onAdd, required this.onEdit})
+      : super(key: key);
+
+  final Country? country;
   final Function() onAdd;
+  final Function(Country) onEdit;
 
   @override
-  _VehicleModelsScreenState createState() => _VehicleModelsScreenState();
+  _CountriesScreenState createState() => _CountriesScreenState();
 }
 
-class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
-  late VehicleModelsService _modelProvider;
+class _CountriesScreenState extends State<CountriesScreen> {
+  late CountriesService _countryService;
   Map<String, dynamic> _initialValue = {};
   bool _isLoading = true;
-  List<VehicleModel> _vehicleModels = [];
+  List<Country> _countries = [];
 
-  VehicleType? _selectedVehicleType;
   String _searchQuery = '';
+  String _activityStatus = '';
 
   int _currentPage = 1;
   int _itemsPerPage = 3;
@@ -38,41 +34,31 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
   @override
   void initState() {
     super.initState();
-    _modelProvider = context.read<VehicleModelsService>();
+    _countryService = context.read<CountriesService>();
     _initialValue = {
-      'id': widget.vehicleModel?.id.toString(),
-      'name': widget.vehicleModel?.name,
-      'vehicleType': widget.vehicleModel?.vehicleType.toString(),
+      'id': widget.country?.id.toString(),
+      'name': widget.country?.name,
+      'abbreviation': widget.country?.abbreviation,
+      'isActive': widget.country?.isActive.toString(),
     };
 
-    _loadPagedVehicleModels();
+    _loadCountries();
   }
 
-  String convertToEnumValue(VehicleType? selectedValue) {
-    switch (selectedValue) {
-      case VehicleType.truck:
-        return 'Truck';
-      case VehicleType.garbageTruck:
-        return 'GarbageTruck';
-      default:
-        return '';
-    }
-  }
-
-  Future<void> _loadPagedVehicleModels() async {
+  Future<void> _loadCountries() async {
     try {
-      final models = await _modelProvider.getPaged(
+      final countries = await _countryService.getPaged(
         filter: {
-          'query': _searchQuery,
-          'type': convertToEnumValue(_selectedVehicleType),
-          'pageNumber': _currentPage,
-          'pageSize': _itemsPerPage,
+          'name': _searchQuery,
+          'isActive': _activityStatus,
+          'pageNumber': _currentPage, // Add page number
+          'pageSize': _itemsPerPage, // Add page size
         },
       );
 
       setState(() {
-        _vehicleModels = models.items;
-        _totalRecords = models.totalCount;
+        _countries = countries.items;
+        _totalRecords = countries.totalCount;
         _isLoading = false;
       });
     } catch (error) {
@@ -80,33 +66,21 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
     }
   }
 
-  String getVehicleTypeString(VehicleType? vehicleType) {
-    if (vehicleType == null) {
-      return 'Unknown';
-    }
-    switch (vehicleType) {
-      case VehicleType.truck:
-        return 'Truck';
-      case VehicleType.garbageTruck:
-        return 'Garbage Truck';
-      default:
-        return 'Unknown';
-    }
-  }
-
-  void _deleteVehicleModel(int index) {
-    final vehicleModel = _vehicleModels[index];
-    final id = vehicleModel.id ?? 0;
+  void _deleteCountry(int index) {
+    final country = _countries[index];
+    final id = country.id ?? 0;
 
     _showDeleteConfirmationDialog(() async {
       try {
-        await _modelProvider.remove(id);
+        await _countryService.remove(id);
 
         setState(() {
-          _vehicleModels.removeAt(index);
+          _countries.removeAt(index);
         });
+
+        _loadCountries();
       } catch (error) {
-        print('Error deleting vehicle model: $error');
+        print('Error deleting country: $error');
       }
     });
   }
@@ -117,11 +91,11 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Vehicle Model'),
+          title: Text('Delete Country'),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Are you sure you want to delete this vehicle model?'),
+                Text('Are you sure you want to delete this country?'),
               ],
             ),
           ),
@@ -153,11 +127,11 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
     );
   }
 
-  void _onEdit(VehicleModel vehicleModel) async {
-    widget.onEdit(vehicleModel);
+  void _onEdit(Country country) async {
+    widget.onEdit(country);
   }
 
-  void _onAdd() async {
+  void _openAddScreen() {
     widget.onAdd();
   }
 
@@ -166,7 +140,7 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
       _currentPage = newPage;
     });
 
-    _loadPagedVehicleModels();
+    _loadCountries();
   }
 
   @override
@@ -184,7 +158,7 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Vehicle Models',
+                      'Countries',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -192,7 +166,7 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                       ),
                     ),
                     Text(
-                      'A summary of the Vehicle Models.',
+                      'A summary of the Countries.',
                       style: TextStyle(
                         fontSize: 16,
                         color: Color(0xFF1D1C1E),
@@ -201,11 +175,9 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                   ],
                 ),
                 ElevatedButton.icon(
-                  onPressed: () {
-                    _onAdd();
-                  },
+                  onPressed: _openAddScreen,
                   icon: Icon(Icons.add, color: Colors.white),
-                  label: Text('New Vehicle Model'),
+                  label: Text('New Country'),
                   style: ElevatedButton.styleFrom(
                     primary: Color(0xFF1D1C1E),
                     onPrimary: Colors.white,
@@ -235,7 +207,7 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                           setState(() {
                             _searchQuery = value;
                           });
-                          _loadPagedVehicleModels();
+                          _loadCountries();
                         },
                         decoration: InputDecoration(
                           labelText: 'Search',
@@ -264,25 +236,27 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Container(
                         alignment: Alignment.center,
-                        child: DropdownButtonFormField<VehicleType>(
-                          value: _selectedVehicleType,
+                        child: DropdownButtonFormField<String>(
+                          value: _activityStatus,
                           onChanged: (newValue) {
                             setState(() {
-                              _selectedVehicleType = newValue;
+                              _activityStatus = newValue ?? '';
                             });
-                            _loadPagedVehicleModels();
+                            _loadCountries();
                           },
                           items: [
-                            DropdownMenuItem<VehicleType>(
-                              value: null,
-                              child: Text('Choose the vehicle type'),
+                            DropdownMenuItem<String>(
+                              value: '', // Add the empty string value
+                              child: Text('Choose Activity Status'),
                             ),
-                            ...VehicleType.values.map((type) {
-                              return DropdownMenuItem<VehicleType>(
-                                value: type,
-                                child: Text(getVehicleTypeString(type)),
-                              );
-                            }).toList(),
+                            DropdownMenuItem<String>(
+                              value: 'true',
+                              child: Text('Active'),
+                            ),
+                            DropdownMenuItem<String>(
+                              value: 'false',
+                              child: Text('Inactive'),
+                            ),
                           ],
                           decoration: InputDecoration(
                             border: InputBorder.none,
@@ -320,7 +294,8 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                     ),
                     children: [
                       TableCellWidget(text: 'Name'),
-                      TableCellWidget(text: 'Vehicle Type'),
+                      TableCellWidget(text: 'Abbreviation'),
+                      TableCellWidget(text: 'Active'),
                       TableCellWidget(text: 'Actions'),
                     ],
                   ),
@@ -330,35 +305,41 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
                         TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
+                        TableCellWidget(text: 'Loading...'),
                       ],
                     )
                   else
-                    ..._vehicleModels.asMap().entries.map((entry) {
+                    ..._countries.asMap().entries.map((entry) {
                       final index = entry.key;
-                      final vehicleModel = entry.value;
+                      final country = entry.value;
                       return TableRow(
                         decoration: BoxDecoration(
                           color: Colors.transparent,
                         ),
                         children: [
-                          TableCellWidget(text: vehicleModel.name ?? ''),
+                          TableCellWidget(text: country.name ?? ''),
+                          TableCellWidget(text: country.abbreviation ?? ''),
                           TableCellWidget(
-                              text: getVehicleTypeString(
-                                  vehicleModel.vehicleType)),
+                            text: country.isActive != null
+                                ? country.isActive!
+                                    ? 'Yes'
+                                    : 'No'
+                                : 'Unknown',
+                          ),
                           TableCell(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 IconButton(
                                   onPressed: () {
-                                    _onEdit(vehicleModel);
+                                    _onEdit(country);
                                   },
                                   icon: Icon(Icons.edit,
                                       color: Color(0xFF1D1C1E)),
                                 ),
                                 IconButton(
                                   onPressed: () {
-                                    _deleteVehicleModel(index);
+                                    _deleteCountry(index);
                                   },
                                   icon: Icon(Icons.delete,
                                       color: Color(0xFF1D1C1E)),
@@ -376,6 +357,7 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
         ),
       ),
 
+      // Place the PagingComponent here at the bottom of the page
       bottomNavigationBar: PagingComponent(
         currentPage: _currentPage,
         itemsPerPage: _itemsPerPage,

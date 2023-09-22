@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:trash_track_admin/features/vehicle-model/services/vehicle_models_service.dart';
 import 'package:trash_track_admin/features/vehicle-model/widgets/table_cell.dart';
 import 'package:trash_track_admin/features/vehicle/models/vehicle.dart';
+import 'package:trash_track_admin/features/vehicle/screens/vehicle_add_screen.dart';
 import 'package:trash_track_admin/features/vehicle/services/vehicles_service.dart';
 import 'package:trash_track_admin/shared/widgets/paging_component.dart';
 import 'package:trash_track_admin/features/vehicle/screens/vehicle_edit_screen.dart';
 
 class VehiclesScreen extends StatefulWidget {
-  const VehiclesScreen({Key? key, this.vehicle}) : super(key: key);
+  const VehiclesScreen(
+      {Key? key, this.vehicle, required this.onEdit, required this.onAdd})
+      : super(key: key);
   final Vehicle? vehicle;
+  final Function(Vehicle) onEdit;
+  final Function() onAdd;
 
   @override
   _VehiclesScreenState createState() => _VehiclesScreenState();
@@ -153,21 +158,13 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
     );
   }
 
-  void _openEditScreen(Vehicle vehicle) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        // Your VehicleEditScreen content here
-        content: VehicleEditScreen(vehicle: vehicle),
-      );
-    },
-  ).then((result) {
-    if (result == 'reload') {
-      _loadVehicles();
-    }
-  });
-}
+  void _onEdit(Vehicle vehicle) async {
+    widget.onEdit(vehicle);
+  }
+
+  void _onAdd() async {
+    widget.onAdd();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -201,7 +198,9 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
                   ],
                 ),
                 ElevatedButton.icon(
-                  onPressed: () => {}, // Open the Add screen as a modal
+                  onPressed: () {
+                    _onAdd();
+                  },
                   icon: Icon(Icons.add, color: Colors.white),
                   label: Text('New Vehicle'),
                   style: ElevatedButton.styleFrom(
@@ -330,7 +329,7 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
                               children: [
                                 IconButton(
                                   onPressed: () {
-                                    _openEditScreen(vehicle);
+                                    _onEdit(vehicle);
                                   },
                                   icon: Icon(Icons.edit,
                                       color: Color(0xFF1D1C1E)),

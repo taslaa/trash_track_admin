@@ -4,13 +4,14 @@ part 'garbage.g.dart';
 
 @JsonSerializable()
 class Garbage {
-  String? description;
+  int? id;
+  String? address;
   GarbageType? garbageType; // Use the GarbageType enum here
   double? latitude; // Use double for latitude and longitude
   double? longitude;
 
   Garbage({
-    this.description,
+    this.address,
     this.garbageType,
     this.latitude,
     this.longitude,
@@ -23,7 +24,8 @@ class Garbage {
 }
 
 enum GarbageType {
-  type1,
-  type2,
-  type3,
+  plastic,
+  glass,
+  metal,
+  organic
 }
