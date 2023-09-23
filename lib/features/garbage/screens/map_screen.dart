@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:trash_track_admin/features/garbage/models/garbage.dart';
-import 'package:flutter_geocoder/geocoder.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 

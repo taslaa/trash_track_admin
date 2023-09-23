@@ -227,7 +227,6 @@ class _AddPlaceScreenState extends State<GarbageAddScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.add),
                     const SizedBox(width: 8),
                     const Text('Add Garbage'),
                   ],

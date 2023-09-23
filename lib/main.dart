@@ -5,8 +5,13 @@ import 'package:trash_track_admin/features/user/screens/login_screen.dart';
 import 'package:trash_track_admin/features/user/services/auth_service.dart';
 import 'package:trash_track_admin/features/vehicle-model/services/vehicle_models_service.dart';
 import 'package:trash_track_admin/features/garbage/services/garbage_service.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Import the services library
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+
   runApp(
     MultiProvider(
       providers: [
@@ -38,3 +43,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
