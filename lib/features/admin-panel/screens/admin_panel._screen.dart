@@ -9,6 +9,13 @@ import 'package:trash_track_admin/features/country/screens/country_add_screen.da
 import 'package:trash_track_admin/features/country/screens/country_edit_screen.dart';
 import 'package:trash_track_admin/features/dashboard/screens/dashboard_screen.dart';
 import 'package:trash_track_admin/features/garbage/screens/map_screen.dart';
+import 'package:trash_track_admin/features/reports/models/report.dart';
+import 'package:trash_track_admin/features/reports/screens/report_edit_screen.dart';
+import 'package:trash_track_admin/features/reports/screens/reports_screen.dart';
+import 'package:trash_track_admin/features/services/models/service.dart';
+import 'package:trash_track_admin/features/services/screens/services_add_screen.dart';
+import 'package:trash_track_admin/features/services/screens/services_edit_screen.dart';
+import 'package:trash_track_admin/features/services/screens/services_screen.dart';
 import 'package:trash_track_admin/features/vehicle-model/models/vehicle_model.dart';
 import 'package:trash_track_admin/features/vehicle-model/screens/vehicle_model_add_screen.dart';
 import 'package:trash_track_admin/features/vehicle-model/screens/vehicle_model_edit_screen.dart';
@@ -41,6 +48,8 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
   Vehicle? selectedVehicle;
   Country? selectedCountry;
   City? selectedCity;
+  Service? selectedService;
+  Report? selectedReport;
 
   LatLng? _selectedGarbageLocation = LatLng(43.3422, 17.8128);
   String? selectedAddress = '';
@@ -138,6 +147,28 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     setState(() {
       selectedCity = city;
       selectedRoute = 'cities/edit';
+    });
+  }
+
+  //Service Callbacks
+  void onAddService() {
+    setState(() {
+      selectedRoute = 'services/add';
+    });
+  }
+
+  void onEditService(Service service) {
+    setState(() {
+      selectedService = service;
+      selectedRoute = 'services/edit';
+    });
+  }
+
+  //Reports Callbacks
+  void onEditReport(Report report) {
+    setState(() {
+      selectedReport = report;
+      selectedRoute = 'reports/edit';
     });
   }
 
@@ -286,6 +317,42 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
         return CountryAddScreen(
           onUpdateRoute: updateSelectedRoute,
         );
+
+      // SERVICES
+      case 'services':
+        return ServicesScreen(
+          onAdd: onAddService,
+          onEdit: onEditService,
+        );
+      case 'services/edit':
+        if (selectedService != null) {
+          return ServiceEditScreen(
+            service: selectedService!,
+            onUpdateRoute: updateSelectedRoute,
+          );
+        } else {
+          return const Text('Invalid Service');
+        }
+      case 'services/add':
+        return ServiceAddScreen(
+          onUpdateRoute: updateSelectedRoute,
+        );
+
+      // REPORTS
+      case 'reports':
+        return ReportsScreen(
+          onEdit: onEditReport,
+        );
+      case 'reports/edit':
+        if (selectedReport != null) {
+          return ReportEditScreen(
+            report: selectedReport!,
+            onUpdateRoute: updateSelectedRoute,
+          );
+        } else {
+          return const Text('Invalid Report');
+        }
+
       // CITIES
       case 'cities':
         return CitiesScreen(

@@ -1,30 +1,34 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trash_track_admin/features/country/models/country.dart';
-import 'package:trash_track_admin/features/country/services/countries_service.dart';
-import 'package:trash_track_admin/features/country/widgets/table_cell.dart';
-import 'package:trash_track_admin/features/country/widgets/paging_component.dart';
+import 'package:trash_track_admin/features/reports/models/report.dart';
+import 'package:trash_track_admin/features/reports/services/reports_screen.dart';
+import 'package:trash_track_admin/features/vehicle-model/widgets/table_cell.dart';
+import 'package:trash_track_admin/features/vehicle-model/widgets/paging_component.dart';
 
-class CountriesScreen extends StatefulWidget {
-  const CountriesScreen({Key? key, this.country, required this.onAdd, required this.onEdit})
-      : super(key: key);
-
-  final Country? country;
-  final Function() onAdd;
-  final Function(Country) onEdit;
+class ReportsScreen extends StatefulWidget {
+  const ReportsScreen({
+    Key? key,
+    this.report,
+    required this.onEdit,
+  }) : super(key: key);
+  final Report? report;
+  final Function(Report) onEdit;
 
   @override
-  _CountriesScreenState createState() => _CountriesScreenState();
+  _ReportsScreenState createState() => _ReportsScreenState();
 }
 
-class _CountriesScreenState extends State<CountriesScreen> {
-  late CountriesService _countryService;
+class _ReportsScreenState extends State<ReportsScreen> {
+  late ReportsService _modelProvider;
   Map<String, dynamic> _initialValue = {};
   bool _isLoading = true;
-  List<Country> _countries = [];
+  List<Report> _reports = [];
 
+  ReportState? _selectedReportState;
+  ReportType? _selectedReportType;
   String _searchQuery = '';
-  String _activityStatus = '';
 
   int _currentPage = 1;
   int _itemsPerPage = 3;
@@ -33,31 +37,44 @@ class _CountriesScreenState extends State<CountriesScreen> {
   @override
   void initState() {
     super.initState();
-    _countryService = context.read<CountriesService>();
+    _modelProvider = context.read<ReportsService>();
     _initialValue = {
-      'id': widget.country?.id.toString(),
-      'name': widget.country?.name,
-      'abbreviation': widget.country?.abbreviation,
-      'isActive': widget.country?.isActive.toString(),
+      'id': widget.report?.id.toString(),
+      'note': widget.report?.note,
+      'userId': widget.report?.reporterUserId,
+      'garbageId': widget.report?.garbageId,
+      'reportState': widget.report?.reportState.toString(),
+      'reportType': widget.report?.reportType.toString()
     };
 
-    _loadCountries();
+    _loadPagedReports();
   }
 
-  Future<void> _loadCountries() async {
+  String convertToEnumValue(ReportState? selectedValue) {
+    switch (selectedValue) {
+      case ReportState.reviewed:
+        return 'Reviewed';
+      case ReportState.waitingForReview:
+        return 'WaitingForReview';
+      default:
+        return '';
+    }
+  }
+
+  Future<void> _loadPagedReports() async {
     try {
-      final countries = await _countryService.getPaged(
+      final models = await _modelProvider.getPaged(
         filter: {
-          'name': _searchQuery,
-          'isActive': _activityStatus,
-          'pageNumber': _currentPage, // Add page number
-          'pageSize': _itemsPerPage, // Add page size
+          'query': _searchQuery,
+          'type': convertToEnumValue(_selectedReportState),
+          'pageNumber': _currentPage,
+          'pageSize': _itemsPerPage,
         },
       );
 
       setState(() {
-        _countries = countries.items;
-        _totalRecords = countries.totalCount;
+        _reports = models.items;
+        _totalRecords = models.totalCount;
         _isLoading = false;
       });
     } catch (error) {
@@ -65,21 +82,51 @@ class _CountriesScreenState extends State<CountriesScreen> {
     }
   }
 
-  void _deleteCountry(int index) {
-    final country = _countries[index];
-    final id = country.id ?? 0;
+  String getReportStateString(ReportState? reportState) {
+    if (reportState == null) {
+      return 'Unknown';
+    }
+    switch (reportState) {
+      case ReportState.reviewed:
+        return 'Reviewed';
+      case ReportState.waitingForReview:
+        return 'WaitingForReview';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  String getReportTypeString(ReportType? reportType) {
+    if (reportType == null) {
+      return 'Unknown';
+    }
+    switch (reportType) {
+      case ReportType.trashOverflow:
+        return 'TrashOverflow';
+      case ReportType.littering:
+        return 'Littering';
+      case ReportType.graffitiVandalism:
+        return 'GraffitiVandalism';
+      case ReportType.garbageBinDamage:
+        return 'GarbageBinDamage';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  void _deleteReport(int index) {
+    final report = _reports[index];
+    final id = report.id ?? 0;
 
     _showDeleteConfirmationDialog(() async {
       try {
-        await _countryService.remove(id);
+        await _modelProvider.remove(id);
 
         setState(() {
-          _countries.removeAt(index);
+          _reports.removeAt(index);
         });
-
-        _loadCountries();
       } catch (error) {
-        print('Error deleting country: $error');
+        print('Error deleting report: $error');
       }
     });
   }
@@ -90,11 +137,11 @@ class _CountriesScreenState extends State<CountriesScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Country'),
+          title: Text('Delete Report'),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Are you sure you want to delete this country?'),
+                Text('Are you sure you want to delete this report?'),
               ],
             ),
           ),
@@ -126,12 +173,8 @@ class _CountriesScreenState extends State<CountriesScreen> {
     );
   }
 
-  void _onEdit(Country country) async {
-    widget.onEdit(country);
-  }
-
-  void _openAddScreen() {
-    widget.onAdd();
+  void _onEdit(Report report) async {
+    widget.onEdit(report);
   }
 
   void _handlePageChange(int newPage) {
@@ -139,7 +182,7 @@ class _CountriesScreenState extends State<CountriesScreen> {
       _currentPage = newPage;
     });
 
-    _loadCountries();
+    _loadPagedReports();
   }
 
   @override
@@ -157,7 +200,7 @@ class _CountriesScreenState extends State<CountriesScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Countries',
+                      'Reports',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -165,23 +208,13 @@ class _CountriesScreenState extends State<CountriesScreen> {
                       ),
                     ),
                     Text(
-                      'A summary of the Countries.',
+                      'A summary of the Reports.',
                       style: TextStyle(
                         fontSize: 16,
                         color: Color(0xFF1D1C1E),
                       ),
                     ),
                   ],
-                ),
-                ElevatedButton.icon(
-                  onPressed: _openAddScreen,
-                  icon: Icon(Icons.add, color: Colors.white),
-                  label: Text('New Country'),
-                  style: ElevatedButton.styleFrom(
-                    primary: Color(0xFF1D1C1E),
-                    onPrimary: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                  ),
                 ),
               ],
             ),
@@ -206,7 +239,7 @@ class _CountriesScreenState extends State<CountriesScreen> {
                           setState(() {
                             _searchQuery = value;
                           });
-                          _loadCountries();
+                          _loadPagedReports();
                         },
                         decoration: InputDecoration(
                           labelText: 'Search',
@@ -235,27 +268,25 @@ class _CountriesScreenState extends State<CountriesScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Container(
                         alignment: Alignment.center,
-                        child: DropdownButtonFormField<String>(
-                          value: _activityStatus,
+                        child: DropdownButtonFormField<ReportState>(
+                          value: _selectedReportState,
                           onChanged: (newValue) {
                             setState(() {
-                              _activityStatus = newValue ?? '';
+                              _selectedReportState = newValue;
                             });
-                            _loadCountries();
+                            _loadPagedReports();
                           },
                           items: [
-                            DropdownMenuItem<String>(
-                              value: '', // Add the empty string value
-                              child: Text('Choose Activity Status'),
+                            DropdownMenuItem<ReportState>(
+                              value: null,
+                              child: Text('Choose the report state'),
                             ),
-                            DropdownMenuItem<String>(
-                              value: 'true',
-                              child: Text('Active'),
-                            ),
-                            DropdownMenuItem<String>(
-                              value: 'false',
-                              child: Text('Inactive'),
-                            ),
+                            ...ReportState.values.map((type) {
+                              return DropdownMenuItem<ReportState>(
+                                value: type,
+                                child: Text(getReportStateString(type)),
+                              );
+                            }).toList(),
                           ],
                           decoration: InputDecoration(
                             border: InputBorder.none,
@@ -292,9 +323,11 @@ class _CountriesScreenState extends State<CountriesScreen> {
                       color: Color(0xFFF7F1FB),
                     ),
                     children: [
-                      TableCellWidget(text: 'Name'),
-                      TableCellWidget(text: 'Abbreviation'),
-                      TableCellWidget(text: 'Active'),
+                      TableCellWidget(text: 'Note'),
+                      TableCellWidget(text: 'Report State'),
+                      TableCellWidget(text: 'Report Type'),
+                      TableCellWidget(text: 'ReporterUserId'),
+                      TableCellWidget(text: 'GarbageId'),
                       TableCellWidget(text: 'Actions'),
                     ],
                   ),
@@ -305,40 +338,40 @@ class _CountriesScreenState extends State<CountriesScreen> {
                         TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
+                        TableCellWidget(text: 'Loading...'),
+                        TableCellWidget(text: 'Loading...'),
                       ],
                     )
                   else
-                    ..._countries.asMap().entries.map((entry) {
+                    ..._reports.asMap().entries.map((entry) {
                       final index = entry.key;
-                      final country = entry.value;
+                      final report = entry.value;
                       return TableRow(
                         decoration: BoxDecoration(
                           color: Colors.transparent,
                         ),
                         children: [
-                          TableCellWidget(text: country.name ?? ''),
-                          TableCellWidget(text: country.abbreviation ?? ''),
+                          TableCellWidget(text: report.note ?? ''),
+                          TableCellWidget(text: report.reporterUserId.toString()),
+                          TableCellWidget(text: report.garbageId.toString()),
                           TableCellWidget(
-                            text: country.isActive != null
-                                ? country.isActive!
-                                    ? 'Yes'
-                                    : 'No'
-                                : 'Unknown',
-                          ),
+                              text: getReportStateString(report.reportState)),
+                          TableCellWidget(
+                              text: getReportTypeString(report.reportType)),
                           TableCell(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 IconButton(
                                   onPressed: () {
-                                    _onEdit(country);
+                                    _onEdit(report);
                                   },
                                   icon: Icon(Icons.edit,
                                       color: Color(0xFF1D1C1E)),
                                 ),
                                 IconButton(
                                   onPressed: () {
-                                    _deleteCountry(index);
+                                    _deleteReport(index);
                                   },
                                   icon: Icon(Icons.delete,
                                       color: Color(0xFF1D1C1E)),
@@ -355,8 +388,6 @@ class _CountriesScreenState extends State<CountriesScreen> {
           ],
         ),
       ),
-
-      // Place the PagingComponent here at the bottom of the page
       bottomNavigationBar: PagingComponent(
         currentPage: _currentPage,
         itemsPerPage: _itemsPerPage,

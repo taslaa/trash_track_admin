@@ -28,9 +28,11 @@ class _AdminSidebarState extends State<AdminSidebar> {
     {'name': 'Country', 'icon': Icons.public, 'route': 'countries'},
     {'name': 'Garabge', 'icon': Icons.delete, 'route': 'garbage'},
     {'name': 'Garabge map', 'icon': Icons.map, 'route': 'garbage-map'},
-    {'name': 'Report', 'icon': Icons.report_problem_rounded, 'route': 'reports'},
     {'name': 'User', 'icon': Icons.people, 'route': 'users'},
-    {'name': 'Schedule', 'icon': Icons.schedule, 'route': 'schedules'},
+    // {'name': 'Schedule', 'icon': Icons.schedule, 'route': 'schedules'},
+    {'name': 'Services', 'icon': Icons.room_service, 'route': 'services'},
+    {'name': 'Reports', 'icon': Icons.report, 'route': 'reports'},
+
   ];
 
  @override

@@ -21,6 +21,6 @@ Map<String, dynamic> _$VehicleModelToJson(VehicleModel instance) =>
     };
 
 const _$VehicleTypeEnumMap = {
-  VehicleType.truck: 'Truck',
-  VehicleType.garbageTruck: 'GarbageTruck',
+  VehicleType.truck: 'truck',
+  VehicleType.garbageTruck: 'garbageTruck',
 };

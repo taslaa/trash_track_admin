@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trash_track_admin/features/country/models/country.dart';
-import 'package:trash_track_admin/features/country/services/countries_service.dart';
 import 'package:trash_track_admin/features/country/widgets/table_cell.dart';
 import 'package:trash_track_admin/features/country/widgets/paging_component.dart';
+import 'package:trash_track_admin/features/services/models/service.dart';
+import 'package:trash_track_admin/features/services/service/services_service.dart';
 
-class CountriesScreen extends StatefulWidget {
-  const CountriesScreen({Key? key, this.country, required this.onAdd, required this.onEdit})
+class ServicesScreen extends StatefulWidget {
+  const ServicesScreen({Key? key, this.service, required this.onAdd, required this.onEdit})
       : super(key: key);
 
-  final Country? country;
+  final Service? service;
   final Function() onAdd;
-  final Function(Country) onEdit;
+  final Function(Service) onEdit;
 
   @override
-  _CountriesScreenState createState() => _CountriesScreenState();
+  _ServicesScreenState createState() => _ServicesScreenState();
 }
 
-class _CountriesScreenState extends State<CountriesScreen> {
-  late CountriesService _countryService;
+class _ServicesScreenState extends State<ServicesScreen> {
+  late ServicesService _servicesService;
   Map<String, dynamic> _initialValue = {};
   bool _isLoading = true;
-  List<Country> _countries = [];
+  List<Service> _services = [];
 
   String _searchQuery = '';
   String _activityStatus = '';
@@ -33,31 +33,30 @@ class _CountriesScreenState extends State<CountriesScreen> {
   @override
   void initState() {
     super.initState();
-    _countryService = context.read<CountriesService>();
+    _servicesService = context.read<ServicesService>();
     _initialValue = {
-      'id': widget.country?.id.toString(),
-      'name': widget.country?.name,
-      'abbreviation': widget.country?.abbreviation,
-      'isActive': widget.country?.isActive.toString(),
+      'id': widget.service?.id.toString(),
+      'name': widget.service?.name,
+      'description': widget.service?.description,
+      'price': widget.service?.price
     };
 
-    _loadCountries();
+    _loadServices();
   }
 
-  Future<void> _loadCountries() async {
+  Future<void> _loadServices() async {
     try {
-      final countries = await _countryService.getPaged(
+      final services = await _servicesService.getPaged(
         filter: {
           'name': _searchQuery,
-          'isActive': _activityStatus,
           'pageNumber': _currentPage, // Add page number
           'pageSize': _itemsPerPage, // Add page size
         },
       );
 
       setState(() {
-        _countries = countries.items;
-        _totalRecords = countries.totalCount;
+        _services = services.items;
+        _totalRecords = services.totalCount;
         _isLoading = false;
       });
     } catch (error) {
@@ -65,21 +64,21 @@ class _CountriesScreenState extends State<CountriesScreen> {
     }
   }
 
-  void _deleteCountry(int index) {
-    final country = _countries[index];
+  void _deleteService(int index) {
+    final country = _services[index];
     final id = country.id ?? 0;
 
     _showDeleteConfirmationDialog(() async {
       try {
-        await _countryService.remove(id);
+        await _servicesService.remove(id);
 
         setState(() {
-          _countries.removeAt(index);
+          _services.removeAt(index);
         });
 
-        _loadCountries();
+        _loadServices();
       } catch (error) {
-        print('Error deleting country: $error');
+        print('Error deleting service: $error');
       }
     });
   }
@@ -90,11 +89,11 @@ class _CountriesScreenState extends State<CountriesScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Country'),
+          title: Text('Delete Service'),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Are you sure you want to delete this country?'),
+                Text('Are you sure you want to delete this service?'),
               ],
             ),
           ),
@@ -126,8 +125,8 @@ class _CountriesScreenState extends State<CountriesScreen> {
     );
   }
 
-  void _onEdit(Country country) async {
-    widget.onEdit(country);
+  void _onEdit(Service service) async {
+    widget.onEdit(service);
   }
 
   void _openAddScreen() {
@@ -139,7 +138,7 @@ class _CountriesScreenState extends State<CountriesScreen> {
       _currentPage = newPage;
     });
 
-    _loadCountries();
+    _loadServices();
   }
 
   @override
@@ -157,7 +156,7 @@ class _CountriesScreenState extends State<CountriesScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Countries',
+                      'Services',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -165,7 +164,7 @@ class _CountriesScreenState extends State<CountriesScreen> {
                       ),
                     ),
                     Text(
-                      'A summary of the Countries.',
+                      'A summary of the Services.',
                       style: TextStyle(
                         fontSize: 16,
                         color: Color(0xFF1D1C1E),
@@ -176,7 +175,7 @@ class _CountriesScreenState extends State<CountriesScreen> {
                 ElevatedButton.icon(
                   onPressed: _openAddScreen,
                   icon: Icon(Icons.add, color: Colors.white),
-                  label: Text('New Country'),
+                  label: Text('New Service'),
                   style: ElevatedButton.styleFrom(
                     primary: Color(0xFF1D1C1E),
                     onPrimary: Colors.white,
@@ -206,7 +205,7 @@ class _CountriesScreenState extends State<CountriesScreen> {
                           setState(() {
                             _searchQuery = value;
                           });
-                          _loadCountries();
+                          _loadServices();
                         },
                         decoration: InputDecoration(
                           labelText: 'Search',
@@ -229,45 +228,6 @@ class _CountriesScreenState extends State<CountriesScreen> {
                       color: Colors.white,
                       border: Border.all(
                         color: const Color(0xFF49464E),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: DropdownButtonFormField<String>(
-                          value: _activityStatus,
-                          onChanged: (newValue) {
-                            setState(() {
-                              _activityStatus = newValue ?? '';
-                            });
-                            _loadCountries();
-                          },
-                          items: [
-                            DropdownMenuItem<String>(
-                              value: '', // Add the empty string value
-                              child: Text('Choose Activity Status'),
-                            ),
-                            DropdownMenuItem<String>(
-                              value: 'true',
-                              child: Text('Active'),
-                            ),
-                            DropdownMenuItem<String>(
-                              value: 'false',
-                              child: Text('Inactive'),
-                            ),
-                          ],
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          style: TextStyle(
-                            color: Color(0xFF49464E),
-                          ),
-                          icon: Container(
-                            alignment: Alignment.center,
-                            child: Icon(Icons.arrow_drop_down),
-                          ),
-                        ),
                       ),
                     ),
                   ),
@@ -293,8 +253,8 @@ class _CountriesScreenState extends State<CountriesScreen> {
                     ),
                     children: [
                       TableCellWidget(text: 'Name'),
-                      TableCellWidget(text: 'Abbreviation'),
-                      TableCellWidget(text: 'Active'),
+                      TableCellWidget(text: 'Description'),
+                      TableCellWidget(text: 'Price'),
                       TableCellWidget(text: 'Actions'),
                     ],
                   ),
@@ -308,37 +268,31 @@ class _CountriesScreenState extends State<CountriesScreen> {
                       ],
                     )
                   else
-                    ..._countries.asMap().entries.map((entry) {
+                    ..._services.asMap().entries.map((entry) {
                       final index = entry.key;
-                      final country = entry.value;
+                      final service = entry.value;
                       return TableRow(
                         decoration: BoxDecoration(
                           color: Colors.transparent,
                         ),
                         children: [
-                          TableCellWidget(text: country.name ?? ''),
-                          TableCellWidget(text: country.abbreviation ?? ''),
-                          TableCellWidget(
-                            text: country.isActive != null
-                                ? country.isActive!
-                                    ? 'Yes'
-                                    : 'No'
-                                : 'Unknown',
-                          ),
+                          TableCellWidget(text: service.name ?? ''),
+                          TableCellWidget(text: service.description ?? ''),
+                          TableCellWidget(text: service.price?.toString() ?? ''),
                           TableCell(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 IconButton(
                                   onPressed: () {
-                                    _onEdit(country);
+                                    _onEdit(service);
                                   },
                                   icon: Icon(Icons.edit,
                                       color: Color(0xFF1D1C1E)),
                                 ),
                                 IconButton(
                                   onPressed: () {
-                                    _deleteCountry(index);
+                                    _deleteService(index);
                                   },
                                   icon: Icon(Icons.delete,
                                       color: Color(0xFF1D1C1E)),
