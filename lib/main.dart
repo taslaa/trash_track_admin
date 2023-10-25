@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trash_track_admin/features/country/services/countries_service.dart';
 import 'package:trash_track_admin/features/reports/services/reports_screen.dart';
+import 'package:trash_track_admin/features/reservations/services/reservation_service.dart';
 import 'package:trash_track_admin/features/services/service/services_service.dart';
 import 'package:trash_track_admin/features/user/screens/login_screen.dart'; 
 import 'package:trash_track_admin/features/user/services/auth_service.dart';
@@ -22,6 +23,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => CountriesService()),
         ChangeNotifierProvider(create: (_) => ServicesService()),
         ChangeNotifierProvider(create: (_) => ReportsService()),
+        ChangeNotifierProvider(create: (_) => ReservationService()),
       ],
       child: const MyApp(),
     ),

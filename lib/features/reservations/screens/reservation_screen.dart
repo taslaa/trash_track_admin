@@ -6,27 +6,26 @@ import 'package:trash_track_admin/features/garbage/models/garbage.dart';
 import 'package:trash_track_admin/features/garbage/services/garbage_service.dart';
 import 'package:trash_track_admin/features/garbage/widgets/table_cell.dart';
 import 'package:trash_track_admin/features/garbage/widgets/paging_component.dart';
+import 'package:trash_track_admin/features/reservations/models/reservation.dart';
+import 'package:trash_track_admin/features/reservations/services/reservation_service.dart';
 
-class GarbageScreen extends StatefulWidget {
-  const GarbageScreen({Key? key, this.garbage, required this.onAdd})
+class ReservationScreen extends StatefulWidget {
+  const ReservationScreen({Key? key, this.reservation})
       : super(key: key);
 
-  final Garbage? garbage;
-  final Function() onAdd;
+  final Reservation? reservation;
 
   @override
-  _GarbageScreenState createState() => _GarbageScreenState();
+  _ReservationScreenState createState() => _ReservationScreenState();
 }
 
-class _GarbageScreenState extends State<GarbageScreen> {
-  late GarbageService _gargbageService;
+class _ReservationScreenState extends State<ReservationScreen> {
+  late ReservationService _reservationService;
   Map<String, dynamic> _initialValue = {};
   bool _isLoading = true;
-  List<Garbage> _garbageModels = [];
+  List<Reservation> _reservations = [];
 
-  GarbageType? _selectedGarbageType;
-  String _address = '';
-
+  ReservationStatus? _selectedReservationStatus;
   int _currentPage = 1;
   int _itemsPerPage = 3;
   int _totalRecords = 0;
@@ -34,31 +33,48 @@ class _GarbageScreenState extends State<GarbageScreen> {
   @override
   void initState() {
     super.initState();
-    _gargbageService = context.read<GarbageService>();
+    _reservationService = context.read<ReservationService>();
     _initialValue = {
-      'id': widget.garbage?.id.toString(),
-      'address': widget.garbage?.address,
-      'garbageType': widget.garbage?.garbageType,
-      'latitude': widget.garbage?.latitude,
-      'longitude': widget.garbage?.longitude,
+      'id': widget.reservation?.id.toString() ?? '',
+      'userId': widget.reservation?.userId,
+      'user': widget.reservation?.user,
+      'serviceId': widget.reservation?.serviceId,
+      'service': widget.reservation?.service,
+      'reservationStatus': widget.reservation?.status.toString(),
+      'latitude': widget.reservation?.latitude,
+      'longitude': widget.reservation?.longitude,
+      'price': widget.reservation?.price
     };
 
-    _loadPagedGarbageModels();
+    _loadPagedReservation();
   }
 
-  Future<void> _loadPagedGarbageModels() async {
+   String mapReservationStatusToString(ReservationStatus? status) {
+    if (status == null) {
+      return 'Unknown';
+    }
+    switch (status) {
+      case ReservationStatus.inProgress:
+        return 'In Progress';
+      case ReservationStatus.done:
+        return 'Done';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  Future<void> _loadPagedReservation() async {
     try {
-      final models = await _gargbageService.getPaged(
+      final models = await _reservationService.getPaged(
         filter: {
-          'address': _address,
-          'garbageType': mapGarbageTypeToString(_selectedGarbageType),
+          'status': mapReservationStatusToString(_selectedReservationStatus),
           'pageNumber': _currentPage,
           'pageSize': _itemsPerPage,
         },
       );
 
       setState(() {
-        _garbageModels = models.items;
+        _reservations = models.items;
         _totalRecords = models.totalCount;
         _isLoading = false;
       });
@@ -67,34 +83,19 @@ class _GarbageScreenState extends State<GarbageScreen> {
     }
   }
 
-  String mapGarbageTypeToString(GarbageType? garbageType) {
-    switch (garbageType) {
-      case GarbageType.plastic:
-        return 'Plastic';
-      case GarbageType.glass:
-        return 'Glass';
-      case GarbageType.metal:
-        return 'Metal';
-      case GarbageType.organic:
-        return 'Organic';
-      default:
-        return garbageType.toString(); // Default to enum value if not found
-    }
-  }
-
-  void _deleteGarbageModel(int index) {
-    final garbageModel = _garbageModels[index];
-    final id = garbageModel.id ?? 0;
+  void _deleteReservation(int index) {
+    final reservation = _reservations[index];
+    final id = reservation.id ?? 0;
 
     _showDeleteConfirmationDialog(() async {
       try {
-        await _gargbageService.remove(id);
+        await _reservationService.remove(id);
 
         setState(() {
-          _garbageModels.removeAt(index);
+          _reservations.removeAt(index);
         });
       } catch (error) {
-        print('Error deleting garbage model: $error');
+        print('Error deleting reservation: $error');
       }
     });
   }
@@ -105,11 +106,11 @@ class _GarbageScreenState extends State<GarbageScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Garbage Model'),
+          title: Text('Delete Reservation'),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Are you sure you want to delete this garbage model?'),
+                Text('Are you sure you want to delete this reservation?'),
               ],
             ),
           ),
@@ -145,16 +146,12 @@ class _GarbageScreenState extends State<GarbageScreen> {
   //   widget.onEdit(garbage);
   // }
 
-  void _onAdd() async {
-    widget.onAdd();
-  }
-
   void _handlePageChange(int newPage) {
     setState(() {
       _currentPage = newPage;
     });
 
-    _loadPagedGarbageModels();
+    _loadPagedReservation();
   }
 
   @override
@@ -172,7 +169,7 @@ class _GarbageScreenState extends State<GarbageScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Garbage',
+                      'Reservations',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -180,25 +177,13 @@ class _GarbageScreenState extends State<GarbageScreen> {
                       ),
                     ),
                     Text(
-                      'A summary of the Garbage.',
+                      'A summary of the Reservation.',
                       style: TextStyle(
                         fontSize: 16,
                         color: Color(0xFF1D1C1E),
                       ),
                     ),
                   ],
-                ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    _onAdd();
-                  },
-                  icon: Icon(Icons.add, color: Colors.white),
-                  label: Text('New Garbage'),
-                  style: ElevatedButton.styleFrom(
-                    primary: Color(0xFF1D1C1E),
-                    onPrimary: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                  ),
                 ),
               ],
             ),
@@ -214,24 +199,6 @@ class _GarbageScreenState extends State<GarbageScreen> {
                       color: Colors.white,
                       border: Border.all(
                         color: const Color(0xFF49464E),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: TextField(
-                        onChanged: (value) {
-                          setState(() {
-                            _address = value;
-                          });
-                          _loadPagedGarbageModels();
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'Search',
-                          border: InputBorder.none,
-                        ),
-                        style: TextStyle(
-                          color: Color(0xFF49464E),
-                        ),
                       ),
                     ),
                   ),
@@ -252,24 +219,23 @@ class _GarbageScreenState extends State<GarbageScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Container(
                         alignment: Alignment.center,
-                        child: DropdownButtonFormField<GarbageType>(
-                          value: _selectedGarbageType,
+                        child: DropdownButtonFormField<ReservationStatus>(
+                          value: _selectedReservationStatus,
                           onChanged: (newValue) {
-                            print(newValue);
                             setState(() {
-                              _selectedGarbageType = newValue;
+                              _selectedReservationStatus = newValue;
                             });
-                            _loadPagedGarbageModels();
+                            _loadPagedReservation();
                           },
                           items: [
-                            DropdownMenuItem<GarbageType>(
+                            DropdownMenuItem<ReservationStatus>(
                               value: null,
-                              child: Text('Choose the garbage type'),
+                              child: Text('Choose the reservation status'),
                             ),
-                            ...GarbageType.values.map((type) {
-                              return DropdownMenuItem<GarbageType>(
+                            ...ReservationStatus.values.map((type) {
+                              return DropdownMenuItem<ReservationStatus>(
                                 value: type,
-                                child: Text(mapGarbageTypeToString(
+                                child: Text(mapReservationStatusToString(
                                     type)), 
                               );
                             }).toList(),
@@ -309,8 +275,12 @@ class _GarbageScreenState extends State<GarbageScreen> {
                       color: Color(0xFFF7F1FB),
                     ),
                     children: [
-                      TableCellWidget(text: 'Address'),
-                      TableCellWidget(text: 'Garbage Type'),
+                      TableCellWidget(text: 'User'),
+                      TableCellWidget(text: 'Service'),
+                      TableCellWidget(text: 'Reservation Status'),
+                      TableCellWidget(text: 'Longitude'),
+                      TableCellWidget(text: 'Latitude'),
+                      TableCellWidget(text: 'Price'),
                       TableCellWidget(text: 'Actions'),
                     ],
                   ),
@@ -320,21 +290,29 @@ class _GarbageScreenState extends State<GarbageScreen> {
                         TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
+                        TableCellWidget(text: 'Loading...'),
+                        TableCellWidget(text: 'Loading...'),
+                        TableCellWidget(text: 'Loading...'),
+                        TableCellWidget(text: 'Loading...'),
                       ],
                     )
                   else
-                    ..._garbageModels.asMap().entries.map((entry) {
+                    ..._reservations.asMap().entries.map((entry) {
                       final index = entry.key;
-                      final garbageModel = entry.value;
+                      final reservation = entry.value;
                       return TableRow(
                         decoration: BoxDecoration(
                           color: Colors.transparent,
                         ),
                         children: [
-                          TableCellWidget(text: garbageModel.address ?? ''),
+                          TableCellWidget(text: reservation.user?.firstName ?? ''),
+                          TableCellWidget(text: reservation.service?.name ?? ''),
                           TableCellWidget(
-                              text: mapGarbageTypeToString(
-                                  garbageModel.garbageType!)),
+                              text: mapReservationStatusToString(
+                                  reservation.status!)),
+                          TableCellWidget(text: reservation.latitude?.toString() ?? ''),
+                          TableCellWidget(text: reservation.longitude?.toString() ?? ''),
+                          TableCellWidget(text: reservation.price?.toString() ?? ''),
                           TableCell(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -348,7 +326,7 @@ class _GarbageScreenState extends State<GarbageScreen> {
                                 ),
                                 IconButton(
                                   onPressed: () {
-                                    _deleteGarbageModel(index);
+                                    _deleteReservation(index);
                                   },
                                   icon: Icon(Icons.delete,
                                       color: Color(0xFF1D1C1E)),

@@ -32,6 +32,7 @@ class _AdminSidebarState extends State<AdminSidebar> {
     // {'name': 'Schedule', 'icon': Icons.schedule, 'route': 'schedules'},
     {'name': 'Services', 'icon': Icons.room_service, 'route': 'services'},
     {'name': 'Reports', 'icon': Icons.report, 'route': 'reports'},
+    {'name': 'Reservations', 'icon': Icons.calendar_month, 'route': 'reservations'},
 
   ];
 

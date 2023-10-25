@@ -23,9 +23,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
   bool _isLoading = true;
   List<Service> _services = [];
 
-  String _searchQuery = '';
-  String _activityStatus = '';
-
+  String _searchName = '';
   int _currentPage = 1;
   int _itemsPerPage = 3;
   int _totalRecords = 0;
@@ -48,7 +46,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
     try {
       final services = await _servicesService.getPaged(
         filter: {
-          'name': _searchQuery,
+          'name': _searchName,
           'pageNumber': _currentPage, // Add page number
           'pageSize': _itemsPerPage, // Add page size
         },
@@ -203,7 +201,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       child: TextField(
                         onChanged: (value) {
                           setState(() {
-                            _searchQuery = value;
+                            _searchName = value;
                           });
                           _loadServices();
                         },
@@ -219,19 +217,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   ),
                 ),
                 SizedBox(width: 16),
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    width: 400,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.white,
-                      border: Border.all(
-                        color: const Color(0xFF49464E),
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
             SizedBox(height: 16),

@@ -12,6 +12,7 @@ import 'package:trash_track_admin/features/garbage/screens/map_screen.dart';
 import 'package:trash_track_admin/features/reports/models/report.dart';
 import 'package:trash_track_admin/features/reports/screens/report_edit_screen.dart';
 import 'package:trash_track_admin/features/reports/screens/reports_screen.dart';
+import 'package:trash_track_admin/features/reservations/screens/reservation_screen.dart';
 import 'package:trash_track_admin/features/services/models/service.dart';
 import 'package:trash_track_admin/features/services/screens/services_add_screen.dart';
 import 'package:trash_track_admin/features/services/screens/services_edit_screen.dart';
@@ -352,6 +353,11 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
         } else {
           return const Text('Invalid Report');
         }
+
+         // Reservations
+      case 'reservations':
+        return ReservationScreen();
+        
 
       // CITIES
       case 'cities':

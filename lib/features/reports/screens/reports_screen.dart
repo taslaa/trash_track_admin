@@ -27,8 +27,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   List<Report> _reports = [];
 
   ReportState? _selectedReportState;
-  ReportType? _selectedReportType;
-  String _searchQuery = '';
+  String _note = '';
 
   int _currentPage = 1;
   int _itemsPerPage = 3;
@@ -41,21 +40,25 @@ class _ReportsScreenState extends State<ReportsScreen> {
     _initialValue = {
       'id': widget.report?.id.toString(),
       'note': widget.report?.note,
-      'userId': widget.report?.reporterUserId,
-      'garbageId': widget.report?.garbageId,
       'reportState': widget.report?.reportState.toString(),
-      'reportType': widget.report?.reportType.toString()
+      'reportType': widget.report?.reportType.toString(),
+      'reporterUserId': widget.report?.reporterUserId,
+      'reporterUser': widget.report?.reporterUser,
+      'photo': widget.report?.photo,
+      'garbageId': widget.report?.garbageId,
+      'garbage': widget.report?.garbage
     };
 
     _loadPagedReports();
   }
 
-  String convertToEnumValue(ReportState? selectedValue) {
-    switch (selectedValue) {
+
+  String mapReportStateToString(ReportState? reportState) {
+    switch (reportState) {
       case ReportState.reviewed:
         return 'Reviewed';
       case ReportState.waitingForReview:
-        return 'WaitingForReview';
+        return 'Waiting For Review';
       default:
         return '';
     }
@@ -65,8 +68,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
     try {
       final models = await _modelProvider.getPaged(
         filter: {
-          'query': _searchQuery,
-          'type': convertToEnumValue(_selectedReportState),
+          'note': _note,
+          'reportState': mapReportStateToString(_selectedReportState),
           'pageNumber': _currentPage,
           'pageSize': _itemsPerPage,
         },
@@ -90,7 +93,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       case ReportState.reviewed:
         return 'Reviewed';
       case ReportState.waitingForReview:
-        return 'WaitingForReview';
+        return 'Waiting For Review';
       default:
         return 'Unknown';
     }
@@ -101,14 +104,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
       return 'Unknown';
     }
     switch (reportType) {
-      case ReportType.trashOverflow:
-        return 'TrashOverflow';
+      case ReportType.garbageBinDamage:
+        return 'Garbage Bin Damage';
+      case ReportType.graffitiVandalism:
+        return 'Graffiti Vandalism';
       case ReportType.littering:
         return 'Littering';
-      case ReportType.graffitiVandalism:
-        return 'GraffitiVandalism';
-      case ReportType.garbageBinDamage:
-        return 'GarbageBinDamage';
+      case ReportType.trashOverflow:
+        return 'Trash Overflow';
       default:
         return 'Unknown';
     }
@@ -126,7 +129,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           _reports.removeAt(index);
         });
       } catch (error) {
-        print('Error deleting report: $error');
+        print('Error deleting report : $error');
       }
     });
   }
@@ -237,7 +240,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       child: TextField(
                         onChanged: (value) {
                           setState(() {
-                            _searchQuery = value;
+                            _note = value;
                           });
                           _loadPagedReports();
                         },
@@ -326,8 +329,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       TableCellWidget(text: 'Note'),
                       TableCellWidget(text: 'Report State'),
                       TableCellWidget(text: 'Report Type'),
-                      TableCellWidget(text: 'ReporterUserId'),
-                      TableCellWidget(text: 'GarbageId'),
+                      TableCellWidget(text: 'Reporter User'),
+                      TableCellWidget(text: 'Garbage'),
                       TableCellWidget(text: 'Actions'),
                     ],
                   ),
@@ -352,12 +355,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         ),
                         children: [
                           TableCellWidget(text: report.note ?? ''),
-                          TableCellWidget(text: report.reporterUserId.toString()),
-                          TableCellWidget(text: report.garbageId.toString()),
                           TableCellWidget(
                               text: getReportStateString(report.reportState)),
                           TableCellWidget(
                               text: getReportTypeString(report.reportType)),
+                          TableCellWidget(text: report.reporterUser!.firstName ?? ''),
+                          TableCellWidget(text: report.garbage!.address ?? ''),
                           TableCell(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,

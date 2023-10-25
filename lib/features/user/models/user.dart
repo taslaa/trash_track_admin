@@ -19,8 +19,7 @@ class UserEntity {
   Country? country;
   int? roleId;
   Role? role;
-  int? profilePhotoId;
-  Photo? profilePhoto;
+  String? profilePhoto;
   bool? isActive;
 
   UserEntity({
@@ -38,7 +37,6 @@ class UserEntity {
     this.role,
     this.roleId,
     this.profilePhoto,
-    this.profilePhotoId,
     this.isActive,
   });
 
