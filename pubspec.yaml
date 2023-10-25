@@ -54,6 +54,7 @@ dependencies:
   jwt_decode: ^0.3.1
   shared_preferences: ^2.2.1
   flutter_map: ^0.14.0
+  multiselect: ^0.1.0
 
 dev_dependencies:
   json_serializable: ^6.2.0 #for mapping models from json and to json

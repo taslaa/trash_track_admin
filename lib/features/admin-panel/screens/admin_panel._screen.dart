@@ -13,6 +13,7 @@ import 'package:trash_track_admin/features/reports/models/report.dart';
 import 'package:trash_track_admin/features/reports/screens/report_edit_screen.dart';
 import 'package:trash_track_admin/features/reports/screens/reports_screen.dart';
 import 'package:trash_track_admin/features/reservations/screens/reservation_screen.dart';
+import 'package:trash_track_admin/features/schedules/screens/schedule_add_screen.dart';
 import 'package:trash_track_admin/features/services/models/service.dart';
 import 'package:trash_track_admin/features/services/screens/services_add_screen.dart';
 import 'package:trash_track_admin/features/services/screens/services_edit_screen.dart';
@@ -134,6 +135,13 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     setState(() {
       selectedCountry = country;
       selectedRoute = 'countries/edit';
+    });
+  }
+
+  // Schedule Callbacks
+  void onAddSchedule() {
+    setState(() {
+      selectedRoute = 'schedules/add';
     });
   }
 
@@ -271,6 +279,13 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
         return VehicleAddScreen(
           onUpdateRoute: updateSelectedRoute,
         );
+
+      //SCHEDULE
+      case 'schedules/add':
+        return ScheduleAddScreen(
+          // onUpdateRoute: updateSelectedRoute,
+        );
+
       // GARBAGE
       case 'garbage':
         return GarbageScreen(
@@ -354,10 +369,9 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
           return const Text('Invalid Report');
         }
 
-         // Reservations
+      // Reservations
       case 'reservations':
         return ReservationScreen();
-        
 
       // CITIES
       case 'cities':

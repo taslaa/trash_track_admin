@@ -16,8 +16,7 @@ Reservation _$ReservationFromJson(Map<String, dynamic> json) => Reservation(
       service: json['service'] == null
           ? null
           : Service.fromJson(json['service'] as Map<String, dynamic>),
-      status: $enumDecodeNullable(
-          _$ReservationStatusEnumMap, json['status']),
+      status: $enumDecodeNullable(_$ReservationStatusEnumMap, json['status']),
       latitude: (json['latitude'] as num?)?.toDouble(),
       longitude: (json['longitude'] as num?)?.toDouble(),
       price: (json['price'] as num?)?.toDouble(),
@@ -30,14 +29,13 @@ Map<String, dynamic> _$ReservationToJson(Reservation instance) =>
       'user': instance.user,
       'serviceId': instance.serviceId,
       'service': instance.service,
-      'reservationStatus':
-          _$ReservationStatusEnumMap[instance.status],
+      'status': _$ReservationStatusEnumMap[instance.status],
       'latitude': instance.latitude,
       'longitude': instance.longitude,
       'price': instance.price,
     };
 
 const _$ReservationStatusEnumMap = {
-  ReservationStatus.inProgress: 'InProgress',
-  ReservationStatus.done: 'Done',
+  ReservationStatus.inProgress: 'inProgress',
+  ReservationStatus.done: 'done',
 };
