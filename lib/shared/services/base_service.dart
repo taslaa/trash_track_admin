@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:trash_track_admin/features/reports/models/report.dart';
+
 import '../models/search_result.dart';
 import '../utils/util.dart';
 import 'package:flutter/material.dart';
@@ -83,6 +85,40 @@ abstract class BaseService<T> with ChangeNotifier {
       return fromJson(data);
     } else {
       throw Exception("Unknown error");
+    }
+  }
+
+  Future updateReportState(dynamic object) async {
+    var url = "$baseUrl$endpoint/PutReportState";
+    var uri = Uri.parse(url);
+    var headers = createHeaders();
+
+    var jsonRequest = jsonEncode(object);
+
+    Response response = await put(uri, headers: headers, body: jsonRequest);
+
+    if (isValidResponse(response)) {
+      var data = jsonDecode(response.body);
+      return data; // Assuming the response from the backend is an integer.
+    } else {
+      throw Exception("Failed to update report state");
+    }
+  }
+
+  Future updateReservationStatus(dynamic object) async {
+    var url = "$baseUrl$endpoint/PutReservationStatus";
+    var uri = Uri.parse(url);
+    var headers = createHeaders();
+
+    var jsonRequest = jsonEncode(object);
+
+    Response response = await put(uri, headers: headers, body: jsonRequest);
+
+    if (isValidResponse(response)) {
+      var data = jsonDecode(response.body);
+      return data; // Assuming the response from the backend is an integer.
+    } else {
+      throw Exception("Failed to update reservation status");
     }
   }
 

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trash_track_admin/features/reports/models/report.dart';
-import 'package:trash_track_admin/features/reports/services/reports_screen.dart';
+import 'package:trash_track_admin/features/reports/services/reports_service.dart';
 import 'package:trash_track_admin/features/vehicle-model/widgets/table_cell.dart';
 import 'package:trash_track_admin/features/vehicle-model/widgets/paging_component.dart';
 

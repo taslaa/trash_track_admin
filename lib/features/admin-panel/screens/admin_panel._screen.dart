@@ -12,6 +12,8 @@ import 'package:trash_track_admin/features/garbage/screens/map_screen.dart';
 import 'package:trash_track_admin/features/reports/models/report.dart';
 import 'package:trash_track_admin/features/reports/screens/report_edit_screen.dart';
 import 'package:trash_track_admin/features/reports/screens/reports_screen.dart';
+import 'package:trash_track_admin/features/reservations/models/reservation.dart';
+import 'package:trash_track_admin/features/reservations/screens/reservation_edit_screen.dart';
 import 'package:trash_track_admin/features/reservations/screens/reservation_screen.dart';
 import 'package:trash_track_admin/features/schedules/screens/schedule_add_screen.dart';
 import 'package:trash_track_admin/features/services/models/service.dart';
@@ -52,6 +54,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
   City? selectedCity;
   Service? selectedService;
   Report? selectedReport;
+  Reservation? selectedReservation;
 
   LatLng? _selectedGarbageLocation = LatLng(43.3422, 17.8128);
   String? selectedAddress = '';
@@ -178,6 +181,14 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     setState(() {
       selectedReport = report;
       selectedRoute = 'reports/edit';
+    });
+  }
+
+   //Reservation Callbacks
+  void onEditReservation(Reservation reservation) {
+    setState(() {
+      selectedReservation = reservation;
+      selectedRoute = 'reservations/edit';
     });
   }
 
@@ -370,8 +381,19 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
         }
 
       // Reservations
-      case 'reservations':
-        return ReservationScreen();
+       case 'reservations':
+        return ReservationScreen(
+          onEdit: onEditReservation,
+        );
+      case 'reservations/edit':
+        if (selectedReservation != null) {
+          return ReservationEditScreen(
+            reservation: selectedReservation!,
+            onUpdateRoute: updateSelectedRoute,
+          );
+        } else {
+          return const Text('Invalid Reservation');
+        }
 
       // CITIES
       case 'cities':

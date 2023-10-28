@@ -10,10 +10,12 @@ import 'package:trash_track_admin/features/reservations/models/reservation.dart'
 import 'package:trash_track_admin/features/reservations/services/reservation_service.dart';
 
 class ReservationScreen extends StatefulWidget {
-  const ReservationScreen({Key? key, this.reservation})
+  const ReservationScreen({Key? key, this.reservation, required this.onEdit})
       : super(key: key);
 
   final Reservation? reservation;
+  final Function(Reservation) onEdit;
+
 
   @override
   _ReservationScreenState createState() => _ReservationScreenState();
@@ -142,9 +144,9 @@ class _ReservationScreenState extends State<ReservationScreen> {
     );
   }
 
-  // void _onEdit(Garbage garbage) async {
-  //   widget.onEdit(garbage);
-  // }
+  void _onEdit(Reservation reservation) async {
+    widget.onEdit(reservation);
+  }
 
   void _handlePageChange(int newPage) {
     setState(() {
@@ -319,7 +321,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
                               children: [
                                 IconButton(
                                   onPressed: () {
-                                    //_onEdit(garbageModel);
+                                    _onEdit(reservation);
                                   },
                                   icon: Icon(Icons.edit,
                                       color: Color(0xFF1D1C1E)),
