@@ -12,8 +12,8 @@ class Schedule {
   PickupStatus? status;
   int? vehicleId;
   Vehicle? vehicle;
-  List<ScheduleDriver>? scheduleDrivers;
-  List<ScheduleGarbage>? scheduleGarbages;
+  List<Map<String, int?>>? scheduleDrivers;
+  List<Map<String, int?>>? scheduleGarbages;
 
   Schedule({this.id, this.pickupDate, this.status, this.vehicleId, this.vehicle, this.scheduleDrivers, this.scheduleGarbages});
 

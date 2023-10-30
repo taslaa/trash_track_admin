@@ -2,30 +2,37 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trash_track_admin/features/country/widgets/table_cell.dart';
 import 'package:trash_track_admin/features/garbage/models/garbage.dart';
 import 'package:trash_track_admin/features/garbage/services/garbage_service.dart';
-import 'package:trash_track_admin/features/garbage/widgets/table_cell.dart';
 import 'package:trash_track_admin/features/garbage/widgets/paging_component.dart';
+import 'package:trash_track_admin/features/schedules/models/schedule.dart';
+import 'package:trash_track_admin/features/schedules/service/schedule_service.dart';
+import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'package:trash_track_admin/features/schedules/widgets/driver_table_cell.dart';
+import 'dart:convert';
 
-class GarbageScreen extends StatefulWidget {
-  const GarbageScreen({Key? key, this.garbage, required this.onAdd})
+import 'package:trash_track_admin/features/user/services/users_service.dart';
+
+class SchedulesScreen extends StatefulWidget {
+  const SchedulesScreen({Key? key, this.schedule, required this.onAdd})
       : super(key: key);
 
-  final Garbage? garbage;
+  final Schedule? schedule;
   final Function() onAdd;
 
   @override
-  _GarbageScreenState createState() => _GarbageScreenState();
+  _SchedulesScreenState createState() => _SchedulesScreenState();
 }
 
-class _GarbageScreenState extends State<GarbageScreen> {
-  late GarbageService _gargbageService;
+class _SchedulesScreenState extends State<SchedulesScreen> {
+  late ScheduleService _scheduleService;
   Map<String, dynamic> _initialValue = {};
   bool _isLoading = true;
-  List<Garbage> _garbageModels = [];
+  List<Schedule> _schedules = [];
 
-  GarbageType? _selectedGarbageType;
-  String _address = '';
+  PickupStatus? _selectedPickupStatus;
 
   int _currentPage = 1;
   int _itemsPerPage = 3;
@@ -34,64 +41,65 @@ class _GarbageScreenState extends State<GarbageScreen> {
   @override
   void initState() {
     super.initState();
-    _gargbageService = context.read<GarbageService>();
+    _scheduleService = context.read<ScheduleService>();
     _initialValue = {
-      'id': widget.garbage?.id.toString(),
-      'address': widget.garbage?.address,
-      'garbageType': widget.garbage?.garbageType,
-      'latitude': widget.garbage?.latitude,
-      'longitude': widget.garbage?.longitude,
+      'id': widget.schedule?.id.toString(),
+      'pickupDate': widget.schedule?.pickupDate,
+      'status': widget.schedule?.status,
+      'vehicleId': widget.schedule?.vehicleId,
+      'vehicle': widget.schedule?.vehicle,
+      'scheduleDrivers': widget.schedule?.scheduleDrivers,
+      'scheduleGarbages': widget.schedule?.scheduleGarbages,
     };
 
-    _loadPagedGarbageModels();
+    _loadPagedSchedules();
   }
 
-  Future<void> _loadPagedGarbageModels() async {
+  Future<void> _loadPagedSchedules() async {
     try {
-      final models = await _gargbageService.getPaged(
+      final models = await _scheduleService.getPaged(
         filter: {
-          'address': _address,
-          'garbageType': mapGarbageTypeToString(_selectedGarbageType),
+          'pickupStatus': mapPickupStatusToString(_selectedPickupStatus),
           'pageNumber': _currentPage,
           'pageSize': _itemsPerPage,
         },
       );
 
       setState(() {
-        _garbageModels = models.items;
+        _schedules = models.items;
         _totalRecords = models.totalCount;
         _isLoading = false;
       });
     } catch (error) {
       print('Error: $error');
     }
+
+    _fetchUserNamesForSchedule(11);
   }
 
-  String mapGarbageTypeToString(GarbageType? garbageType) {
-    switch (garbageType) {
-      case GarbageType.plastic:
-        return 'Plastic';
-      case GarbageType.glass:
-        return 'Glass';
-      case GarbageType.metal:
-        return 'Metal';
-      case GarbageType.organic:
-        return 'Organic';
+  String mapPickupStatusToString(PickupStatus? pickupStatus) {
+    switch (pickupStatus) {
+      case PickupStatus.completed:
+        return 'Completed';
+      case PickupStatus.pending:
+        return 'Pending';
+      case PickupStatus.cancelled:
+        return 'Cancelled';
       default:
-        return garbageType.toString(); // Default to enum value if not found
+        return pickupStatus.toString(); // Default to enum value if not found
     }
   }
 
-  void _deleteGarbageModel(int index) {
-    final garbageModel = _garbageModels[index];
-    final id = garbageModel.id ?? 0;
+  void _deleteSchedule(int index) {
+    final schedule = _schedules[index];
+    final id = schedule.id ?? 0;
 
     _showDeleteConfirmationDialog(() async {
       try {
-        await _gargbageService.remove(id);
+        await _scheduleService.remove(id);
 
         setState(() {
-          _garbageModels.removeAt(index);
+          _schedules.removeAt(index);
         });
       } catch (error) {
         print('Error deleting garbage model: $error');
@@ -105,11 +113,11 @@ class _GarbageScreenState extends State<GarbageScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Garbage Model'),
+          title: Text('Delete Schedule'),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Are you sure you want to delete this garbage model?'),
+                Text('Are you sure you want to delete this schedule?'),
               ],
             ),
           ),
@@ -141,10 +149,6 @@ class _GarbageScreenState extends State<GarbageScreen> {
     );
   }
 
-  // void _onEdit(Garbage garbage) async {
-  //   widget.onEdit(garbage);
-  // }
-
   void _onAdd() async {
     widget.onAdd();
   }
@@ -154,7 +158,41 @@ class _GarbageScreenState extends State<GarbageScreen> {
       _currentPage = newPage;
     });
 
-    _loadPagedGarbageModels();
+    _loadPagedSchedules();
+  }
+
+  Future<List<int>> _fetchDriverIdsForSchedule(int? scheduleId) async {
+    final url = Uri.parse(
+        'https://localhost:7090/api/ScheduleDrivers/BySchedule?scheduleId=$scheduleId');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.cast<int>();
+    } else {
+      throw Exception('Failed to load driver IDs');
+    }
+  }
+
+  Future<List<String>> _fetchUserNamesForSchedule(int? scheduleId) async {
+    final userService = context.read<UserService>();
+    final driverIds = await _fetchDriverIdsForSchedule(scheduleId!);
+
+    final names = <String>[];
+
+    for (final driverId in driverIds) {
+      final user = await userService.getById(driverId);
+      if (user != null) {
+        names.add(user.firstName);
+      }
+    }
+    print(names);
+    return names.toList();
+  }
+
+  Future<Widget> _buildDriverIdsForScheduleAsync(int? scheduleId) async {
+    final driverIds = await _fetchDriverIdsForSchedule(scheduleId);
+    return Text(driverIds.toString());
   }
 
   @override
@@ -172,7 +210,7 @@ class _GarbageScreenState extends State<GarbageScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Garbage',
+                      'Schedule',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -180,7 +218,7 @@ class _GarbageScreenState extends State<GarbageScreen> {
                       ),
                     ),
                     Text(
-                      'A summary of the Garbage.',
+                      'A summary of the Schedule.',
                       style: TextStyle(
                         fontSize: 16,
                         color: Color(0xFF1D1C1E),
@@ -193,7 +231,7 @@ class _GarbageScreenState extends State<GarbageScreen> {
                     _onAdd();
                   },
                   icon: Icon(Icons.add, color: Colors.white),
-                  label: Text('New Garbage'),
+                  label: Text('New Schedule'),
                   style: ElevatedButton.styleFrom(
                     primary: Color(0xFF1D1C1E),
                     onPrimary: Colors.white,
@@ -216,24 +254,6 @@ class _GarbageScreenState extends State<GarbageScreen> {
                         color: const Color(0xFF49464E),
                       ),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: TextField(
-                        onChanged: (value) {
-                          setState(() {
-                            _address = value;
-                          });
-                          _loadPagedGarbageModels();
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'Search',
-                          border: InputBorder.none,
-                        ),
-                        style: TextStyle(
-                          color: Color(0xFF49464E),
-                        ),
-                      ),
-                    ),
                   ),
                 ),
                 SizedBox(width: 16),
@@ -252,24 +272,24 @@ class _GarbageScreenState extends State<GarbageScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Container(
                         alignment: Alignment.center,
-                        child: DropdownButtonFormField<GarbageType>(
-                          value: _selectedGarbageType,
+                        child: DropdownButtonFormField<PickupStatus>(
+                          value: _selectedPickupStatus,
                           onChanged: (newValue) {
                             print(newValue);
                             setState(() {
-                              _selectedGarbageType = newValue;
+                              _selectedPickupStatus = newValue;
                             });
-                            _loadPagedGarbageModels();
+                            _loadPagedSchedules();
                           },
                           items: [
-                            DropdownMenuItem<GarbageType>(
+                            DropdownMenuItem<PickupStatus>(
                               value: null,
-                              child: Text('Choose the garbage type'),
+                              child: Text('Choose the pickup status'),
                             ),
-                            ...GarbageType.values.map((type) {
-                              return DropdownMenuItem<GarbageType>(
+                            ...PickupStatus.values.map((type) {
+                              return DropdownMenuItem<PickupStatus>(
                                 value: type,
-                                child: Text(mapGarbageTypeToString(type)),
+                                child: Text(mapPickupStatusToString(type)),
                               );
                             }).toList(),
                           ],
@@ -308,8 +328,10 @@ class _GarbageScreenState extends State<GarbageScreen> {
                       color: Color(0xFFF7F1FB),
                     ),
                     children: [
-                      TableCellWidget(text: 'Address'),
-                      TableCellWidget(text: 'Garbage Type'),
+                      TableCellWidget(text: 'Pickup date'),
+                      TableCellWidget(text: 'Pickup status'),
+                      TableCellWidget(text: 'Drivers'),
+                      TableCellWidget(text: 'Vehicle'),
                       TableCellWidget(text: 'Actions'),
                     ],
                   ),
@@ -319,28 +341,36 @@ class _GarbageScreenState extends State<GarbageScreen> {
                         TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
+                        TableCellWidget(text: 'Loading...'),
+                        TableCellWidget(text: 'Loading...'),
                       ],
                     )
                   else
-                    ..._garbageModels.asMap().entries.map((entry) {
+                    ..._schedules.asMap().entries.map((entry) {
                       final index = entry.key;
-                      final garbageModel = entry.value;
+                      final schedule = entry.value;
                       return TableRow(
                         decoration: BoxDecoration(
                           color: Colors.transparent,
                         ),
                         children: [
-                          TableCellWidget(text: garbageModel.address ?? ''),
                           TableCellWidget(
-                              text: mapGarbageTypeToString(
-                                  garbageModel.garbageType!)),
+                              text: DateFormat('dd/MM/yyyy').format(
+                                  schedule.pickupDate ?? DateTime.now())),
+                          TableCellWidget(
+                              text: mapPickupStatusToString(schedule.status!)),
+                          DriverTableCellWidget(
+                            textFuture: _fetchUserNamesForSchedule(schedule.id),
+                          ),
+                          TableCellWidget(
+                              text: schedule.vehicle?.licensePlateNumber ?? ''),
                           TableCell(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 IconButton(
                                   onPressed: () {
-                                    _deleteGarbageModel(index);
+                                    _deleteSchedule(index);
                                   },
                                   icon: Icon(Icons.delete,
                                       color: Color(0xFF1D1C1E)),

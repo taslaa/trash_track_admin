@@ -12,7 +12,7 @@ abstract class BaseService<T> with ChangeNotifier {
   BaseService(String point) {
     endpoint += point;
     baseUrl = const String.fromEnvironment("baseUrl",
-        defaultValue: "http://localhost:5057/");
+        defaultValue: "https://localhost:7090/");
   }
 
   Future<SearchResult<T>> getPaged({dynamic filter}) async {

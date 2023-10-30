@@ -13,7 +13,9 @@ import 'package:trash_track_admin/features/reports/models/report.dart';
 import 'package:trash_track_admin/features/reports/screens/report_edit_screen.dart';
 import 'package:trash_track_admin/features/reports/screens/reports_screen.dart';
 import 'package:trash_track_admin/features/reservations/screens/reservation_screen.dart';
+import 'package:trash_track_admin/features/schedules/screens/garbage_select_screen.dart';
 import 'package:trash_track_admin/features/schedules/screens/schedule_add_screen.dart';
+import 'package:trash_track_admin/features/schedules/screens/schedules_screen.dart';
 import 'package:trash_track_admin/features/services/models/service.dart';
 import 'package:trash_track_admin/features/services/screens/services_add_screen.dart';
 import 'package:trash_track_admin/features/services/screens/services_edit_screen.dart';
@@ -55,6 +57,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
 
   LatLng? _selectedGarbageLocation = LatLng(43.3422, 17.8128);
   String? selectedAddress = '';
+  List<Garbage> _selectedGarbages = [];
 
   // Callbacks to handle navigation
   void onTabSelected(String route) {
@@ -142,6 +145,18 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
   void onAddSchedule() {
     setState(() {
       selectedRoute = 'schedules/add';
+    });
+  }
+
+  void onSelectGarbages() {
+    setState(() {
+      selectedRoute = 'garbages/select';
+    });
+  }
+
+  void onSelectedGarbages(List<Garbage> selectedGarbages) {
+    setState(() {
+      _selectedGarbages = selectedGarbages;
     });
   }
 
@@ -281,9 +296,21 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
         );
 
       //SCHEDULE
+      case 'schedules':
+        return SchedulesScreen(
+          onAdd: onAddSchedule,
+        );
+
       case 'schedules/add':
         return ScheduleAddScreen(
-          // onUpdateRoute: updateSelectedRoute,
+          selectedGarbages: _selectedGarbages,
+          onUpdateRoute: updateSelectedRoute,
+        );
+
+      case 'garbages/select':
+        return GarbageSelectScreen(
+          onSelectedGarbages: onSelectedGarbages,
+          onUpdateRoute: updateSelectedRoute,
         );
 
       // GARBAGE

@@ -1,11 +1,11 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:flutter_paypal/flutter_paypal.dart';
+import 'package:trash_track_admin/features/garbage/models/garbage.dart';
 import 'package:trash_track_admin/features/schedules/models/schedule.dart';
 import 'package:trash_track_admin/features/schedules/models/schedule_driver.dart';
+import 'package:trash_track_admin/features/schedules/service/schedule_provider.dart';
 import 'package:trash_track_admin/features/schedules/service/schedule_service.dart';
 import 'package:trash_track_admin/features/user/models/user.dart';
 import 'package:trash_track_admin/features/user/services/users_service.dart';
@@ -14,9 +14,16 @@ import 'package:trash_track_admin/features/vehicle/screens/vehicles_screen.dart'
 import 'package:trash_track_admin/features/vehicle/services/vehicles_service.dart';
 import 'package:trash_track_admin/shared/services/enums_service.dart';
 import 'package:multiselect/multiselect.dart';
+import 'package:intl/intl.dart';
 
 class ScheduleAddScreen extends StatefulWidget {
-  ScheduleAddScreen({Key? key}) : super(key: key);
+  List<Garbage> selectedGarbages = [];
+  final Function(String) onUpdateRoute;
+
+  ScheduleAddScreen({
+    required this.selectedGarbages,
+    required this.onUpdateRoute,
+  });
 
   @override
   State<ScheduleAddScreen> createState() => _ScheduleAddScreenState();
@@ -31,10 +38,9 @@ class _ScheduleAddScreenState extends State<ScheduleAddScreen> {
   late VehiclesService _vehicleService;
   bool _isLoading = true;
   late EnumsService _enumsService;
-  late int _selectedPickupStatusIndex;
-  late Map<int, String> _pickupStatus;
   DateTime _selectedDate = DateTime.now();
   List<UserEntity> _selectedUsers = [];
+  ScheduleProvider scheduleProvider = ScheduleProvider();
 
   @override
   void initState() {
@@ -44,8 +50,6 @@ class _ScheduleAddScreenState extends State<ScheduleAddScreen> {
     _enumsService = EnumsService();
     _selectedVehicleId = 0;
     _loadVehicles();
-    _selectedPickupStatusIndex = 0;
-    _fetchPickupStatus();
     _userService = UserService();
     _loadUsers();
   }
@@ -53,23 +57,6 @@ class _ScheduleAddScreenState extends State<ScheduleAddScreen> {
   @override
   void dispose() {
     super.dispose();
-  }
-
-  Future<void> _fetchPickupStatus() async {
-    try {
-      final typesData = await _enumsService.getPickupStatus();
-
-      if (typesData is Map<int, String>) {
-        setState(() {
-          _pickupStatus = typesData;
-          _isLoading = false;
-        });
-      } else {
-        print('Received unexpected data format for pickup status: $typesData');
-      }
-    } catch (error) {
-      print('Error fetching pickup status: $error');
-    }
   }
 
   Future<void> _loadVehicles() async {
@@ -103,10 +90,8 @@ class _ScheduleAddScreenState extends State<ScheduleAddScreen> {
     }
   }
 
-  List<ScheduleDriver> convertUsersToScheduleDrivers(List<UserEntity> users) {
-    return users.map((user) {
-      return ScheduleDriver(driverId: user.id);
-    }).toList();
+  void _goBack() {
+    widget.onUpdateRoute('schedules');
   }
 
   @override
@@ -117,60 +102,122 @@ class _ScheduleAddScreenState extends State<ScheduleAddScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: _goBack,
+                ),
+              ],
+            ),
+            const SizedBox(height: 100),
             Text(
-              'Add Schedule',
+              'Add Schedule', // Title text
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: 400, // Set the width here
+              child: ElevatedButton.icon(
+                onPressed: () => _selectDate(context),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.white, // Set the background color to white
+                  onPrimary: const Color(0xFF49464E), // Set the text color
+                  padding: EdgeInsets.symmetric(
+                      vertical: 16.0), // Add some vertical padding
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(10.0), // Apply border radius
+                    side: BorderSide(
+                      color: const Color(0xFF49464E), // Set border color
+                      width: 0.5, // Set border width
+                    ),
+                  ),
+                ),
+                icon: Icon(Icons.date_range,
+                    color: const Color(0xFF49464E)), // Add date icon
+                label: Text(DateFormat('dd/MM/yyyy').format(_selectedDate),
+                    style: TextStyle(
+                        fontSize:
+                            16.0)), // Set button text to the selected date
+              ),
+            ),
             const SizedBox(height: 10),
             _isLoading
                 ? CircularProgressIndicator()
-                : SizedBox(
-                    width: 400,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Container(
-                        width: 400,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.white,
-                          border: Border.all(
-                            color: const Color(0xFF49464E),
+                : Column(
+                    children: [
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: 400, // Set the width here
+                        child: Container(
+                          width: 400,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.white,
+                            border: Border.all(
+                                color: const Color(0xFF49464E), width: 0.5),
                           ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: DropdownButtonFormField<int>(
-                            value: _selectedPickupStatusIndex,
-                            onChanged: (newValue) {
+                          child: DropDownMultiSelect(
+                            options:
+                                _users.map((user) => user.firstName).toList(),
+                            selectedValues: _selectedUsers
+                                .map((user) => user.firstName)
+                                .toList(),
+                            onChanged: (values) {
                               setState(() {
-                                _selectedPickupStatusIndex = newValue ?? 0;
+                                _selectedUsers = _users
+                                    .where((user) =>
+                                        values.contains(user.firstName))
+                                    .toList();
                               });
+                              print(_selectedUsers);
                             },
-                            items: _pickupStatus.entries.map((entry) {
-                              return DropdownMenuItem<int>(
-                                value: entry.key,
-                                child: Text(entry.value),
-                              );
-                            }).toList(),
-                            decoration: InputDecoration(
-                              labelText: 'Pickup Status',
-                              border: InputBorder.none,
-                            ),
-                            style: TextStyle(
-                              color: const Color(0xFF49464E),
-                            ),
+                            whenEmpty: 'Select Users',
                           ),
                         ),
                       ),
-                    ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: 400, // Set the width here
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            widget.onUpdateRoute('garbages/select');
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors
+                                .white, // Set the background color to white
+                            onPrimary:
+                                const Color(0xFF49464E), // Set the text color
+                            padding: EdgeInsets.symmetric(
+                                vertical: 16.0), // Add some vertical padding
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                  10.0), // Apply border radius
+                              side: BorderSide(
+                                color:
+                                    const Color(0xFF49464E), // Set border color
+                                width: 0.5, // Set border width
+                              ),
+                            ),
+                          ),
+                          icon: Icon(Icons.location_on,
+                              color:
+                                  const Color(0xFF49464E)), // Add location icon
+                          label: Text('Select Garbages',
+                              style:
+                                  TextStyle(fontSize: 16.0)), // Set button text
+                        ),
+                      )
+                    ],
                   ),
             const SizedBox(height: 10),
             SizedBox(
-              width: 400,
+              width: 400, // Set the width here
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Container(
@@ -207,39 +254,36 @@ class _ScheduleAddScreenState extends State<ScheduleAddScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 10),
-            // Multiselect dropdown for users
-            DropDownMultiSelect(
-              options: _users.map((user) => user.firstName).toList(),
-              selectedValues:
-                  _selectedUsers.map((user) => user.firstName).toList(),
-              onChanged: (values) {
-                setState(() {
-                  _selectedUsers = _users
-                      .where((user) => values.contains(user.firstName))
-                      .toList();
-                });
-                print(_selectedUsers);
-              },
-              whenEmpty: 'Select Users',
-            ),
-            const SizedBox(height: 10),
             SizedBox(
-              width: 400,
+              width: 400, // Set the width here
               child: ElevatedButton(
                 onPressed: () async {
-                  final selectedPickupStatus =
-                      PickupStatus.values[_selectedPickupStatusIndex];
+                  final List<Map<String, int?>> _scheduleDrivers =
+                      _selectedUsers.map((user) {
+                    return {
+                      "DriverId": user.id,
+                    };
+                  }).toList();
+
+                  final List<Map<String, int?>> _scheduleGarbages =
+                      widget.selectedGarbages?.map((garbage) {
+                            return {
+                              "GarbageId": garbage.id,
+                            };
+                          }).toList() ??
+                          [];
 
                   final newSchedule = Schedule(
-                      pickupDate: _selectedDate,
-                      vehicleId: _selectedVehicleId,
-                      status: selectedPickupStatus,
-                      scheduleDrivers:
-                          convertUsersToScheduleDrivers(_selectedUsers));
+                    pickupDate: _selectedDate,
+                    vehicleId: _selectedVehicleId,
+                    scheduleDrivers: _scheduleDrivers,
+                    scheduleGarbages: _scheduleGarbages,
+                  );
 
                   try {
                     await _scheduleService.insert(newSchedule);
+
+                    widget.onUpdateRoute('dashboard');
                   } catch (error) {
                     print('Error adding schedule: $error');
                   }
@@ -256,11 +300,6 @@ class _ScheduleAddScreenState extends State<ScheduleAddScreen> {
                   minimumSize: Size(400, 48),
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () => _selectDate(context),
-              child: Text('Select Pickup Date'),
             ),
           ],
         ),
