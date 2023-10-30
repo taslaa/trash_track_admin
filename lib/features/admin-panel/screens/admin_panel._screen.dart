@@ -15,11 +15,13 @@ import 'package:trash_track_admin/features/reports/screens/reports_screen.dart';
 import 'package:trash_track_admin/features/reservations/models/reservation.dart';
 import 'package:trash_track_admin/features/reservations/screens/reservation_edit_screen.dart';
 import 'package:trash_track_admin/features/reservations/screens/reservation_screen.dart';
-import 'package:trash_track_admin/features/schedules/screens/schedule_add_screen.dart';
 import 'package:trash_track_admin/features/services/models/service.dart';
 import 'package:trash_track_admin/features/services/screens/services_add_screen.dart';
 import 'package:trash_track_admin/features/services/screens/services_edit_screen.dart';
 import 'package:trash_track_admin/features/services/screens/services_screen.dart';
+import 'package:trash_track_admin/features/user/models/user.dart';
+import 'package:trash_track_admin/features/user/screens/user_edit_screen.dart';
+import 'package:trash_track_admin/features/user/screens/users_screen.dart';
 import 'package:trash_track_admin/features/vehicle-model/models/vehicle_model.dart';
 import 'package:trash_track_admin/features/vehicle-model/screens/vehicle_model_add_screen.dart';
 import 'package:trash_track_admin/features/vehicle-model/screens/vehicle_model_edit_screen.dart';
@@ -55,6 +57,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
   Service? selectedService;
   Report? selectedReport;
   Reservation? selectedReservation;
+  UserEntity? selectedUser;
 
   LatLng? _selectedGarbageLocation = LatLng(43.3422, 17.8128);
   String? selectedAddress = '';
@@ -93,6 +96,14 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     setState(() {
       selectedVehicle = vehicle;
       selectedRoute = 'vehicles/edit';
+    });
+  }
+
+  // User Callbacks
+  void onEditUser(UserEntity user) {
+    setState(() {
+      selectedUser = user;
+      selectedRoute = 'users/edit';
     });
   }
 
@@ -184,7 +195,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     });
   }
 
-   //Reservation Callbacks
+  //Reservation Callbacks
   void onEditReservation(Reservation reservation) {
     setState(() {
       selectedReservation = reservation;
@@ -291,12 +302,6 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
           onUpdateRoute: updateSelectedRoute,
         );
 
-      //SCHEDULE
-      case 'schedules/add':
-        return ScheduleAddScreen(
-          // onUpdateRoute: updateSelectedRoute,
-        );
-
       // GARBAGE
       case 'garbage':
         return GarbageScreen(
@@ -381,7 +386,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
         }
 
       // Reservations
-       case 'reservations':
+      case 'reservations':
         return ReservationScreen(
           onEdit: onEditReservation,
         );
@@ -393,6 +398,21 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
           );
         } else {
           return const Text('Invalid Reservation');
+        }
+
+      //Users
+      case 'users':
+        return UsersScreen(
+          onEdit: onEditUser,
+        );
+      case 'users/edit':
+        if (selectedUser != null) {
+          return UserEditScreen(
+            user: selectedUser!,
+            onUpdateRoute: updateSelectedRoute,
+          );
+        } else {
+          return const Text('Invalid User');
         }
 
       // CITIES

@@ -122,6 +122,23 @@ abstract class BaseService<T> with ChangeNotifier {
     }
   }
 
+  Future updateUser(dynamic object) async {
+    var url = "$baseUrl$endpoint/PutUser";
+    var uri = Uri.parse(url);
+    var headers = createHeaders();
+
+    var jsonRequest = jsonEncode(object);
+
+    Response response = await put(uri, headers: headers, body: jsonRequest);
+
+    if (isValidResponse(response)) {
+      var data = jsonDecode(response.body);
+      return data; // Assuming the response from the backend is an integer.
+    } else {
+      throw Exception("Failed to update user");
+    }
+  }
+
   Future remove(int id) async {
     // [ ] znaci opcionalno
     var url = "$baseUrl$endpoint/$id";

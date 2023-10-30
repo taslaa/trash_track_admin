@@ -6,6 +6,7 @@ import 'package:trash_track_admin/features/reservations/services/reservation_ser
 import 'package:trash_track_admin/features/services/service/services_service.dart';
 import 'package:trash_track_admin/features/user/screens/login_screen.dart'; 
 import 'package:trash_track_admin/features/user/services/auth_service.dart';
+import 'package:trash_track_admin/features/user/services/users_service.dart';
 import 'package:trash_track_admin/features/vehicle-model/services/vehicle_models_service.dart';
 import 'package:trash_track_admin/features/garbage/services/garbage_service.dart';
 import 'package:flutter/services.dart'; 
@@ -24,6 +25,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => ServicesService()),
         ChangeNotifierProvider(create: (_) => ReportsService()),
         ChangeNotifierProvider(create: (_) => ReservationService()),
+        ChangeNotifierProvider(create: (_) => UserService()),
       ],
       child: const MyApp(),
     ),
