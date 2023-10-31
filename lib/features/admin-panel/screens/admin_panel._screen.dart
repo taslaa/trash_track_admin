@@ -9,6 +9,8 @@ import 'package:trash_track_admin/features/country/screens/country_add_screen.da
 import 'package:trash_track_admin/features/country/screens/country_edit_screen.dart';
 import 'package:trash_track_admin/features/dashboard/screens/dashboard_screen.dart';
 import 'package:trash_track_admin/features/garbage/screens/map_screen.dart';
+import 'package:trash_track_admin/features/quiz/models/quiz.dart';
+import 'package:trash_track_admin/features/quiz/screens/quiz_edit_screen.dart';
 import 'package:trash_track_admin/features/reports/models/report.dart';
 import 'package:trash_track_admin/features/reports/screens/report_edit_screen.dart';
 import 'package:trash_track_admin/features/reports/screens/reports_screen.dart';
@@ -34,6 +36,9 @@ import 'package:trash_track_admin/features/garbage/screens/garbage_screen.dart';
 import 'package:trash_track_admin/features/garbage/models/garbage.dart';
 import 'package:trash_track_admin/features/city/screens/cities_screen.dart';
 import 'package:trash_track_admin/features/city/screens/city_edit_screen.dart';
+import 'package:trash_track_admin/features/quiz/screens/quiz_add_screen.dart';
+import 'package:trash_track_admin/features/schedules/screens/garbage_display_screen.dart';
+import 'package:trash_track_admin/features/quiz/screens/quizzes_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:latlong2/latlong.dart';
@@ -54,6 +59,8 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
   City? selectedCity;
   Service? selectedService;
   Report? selectedReport;
+  Quiz? selectedQuiz;
+  List<int>? selectedGarbagesIds;
 
   LatLng? _selectedGarbageLocation = LatLng(43.3422, 17.8128);
   String? selectedAddress = '';
@@ -148,6 +155,13 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     });
   }
 
+  void onDisplayGarbages(List<int> garbageIds) {
+    setState(() {
+      selectedGarbagesIds = garbageIds;
+      selectedRoute = 'schedule/garbages';
+    });
+  }
+
   void onSelectGarbages() {
     setState(() {
       selectedRoute = 'garbages/select';
@@ -171,6 +185,20 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     setState(() {
       selectedCity = city;
       selectedRoute = 'cities/edit';
+    });
+  }
+
+  //Quiz Callbacks
+  void onAddQuiz() {
+    setState(() {
+      selectedRoute = 'quiz/add';
+    });
+  }
+
+  void onEditQuiz(Quiz quiz) {
+    setState(() {
+      selectedQuiz = quiz;
+      selectedRoute = 'quiz/edit';
     });
   }
 
@@ -299,6 +327,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
       case 'schedules':
         return SchedulesScreen(
           onAdd: onAddSchedule,
+          onDisplayGarbages: onDisplayGarbages,
         );
 
       case 'schedules/add':
@@ -311,6 +340,11 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
         return GarbageSelectScreen(
           onSelectedGarbages: onSelectedGarbages,
           onUpdateRoute: updateSelectedRoute,
+        );
+
+      case 'schedule/garbages':
+        return ScheduleGarbageScreen(
+          garbageIds: selectedGarbagesIds!,
         );
 
       // GARBAGE
@@ -399,6 +433,28 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
       // Reservations
       case 'reservations':
         return ReservationScreen();
+
+      // QUIZZES
+      case 'quiz':
+        return QuizzesScreen(
+          onAdd: onAddQuiz,
+          onEdit: onEditQuiz,
+        );
+
+      case 'quiz/add':
+        return QuizAddScreen(
+          onUpdateRoute: updateSelectedRoute,
+        );
+
+      case 'quiz/edit':
+        if (selectedCity != null) {
+          return QuizEditScreen(
+            quiz: selectedQuiz!,
+            onUpdateRoute: updateSelectedRoute,
+          );
+        } else {
+          return const Text('Invalid Quiz');
+        }
 
       // CITIES
       case 'cities':

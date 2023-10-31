@@ -33,7 +33,7 @@ class _AdminSidebarState extends State<AdminSidebar> {
     {'name': 'Services', 'icon': Icons.room_service, 'route': 'services'},
     {'name': 'Reports', 'icon': Icons.report, 'route': 'reports'},
     {'name': 'Reservations', 'icon': Icons.calendar_month, 'route': 'reservations'},
-
+    {'name': 'Quiz', 'icon': Icons.quiz_outlined, 'route': 'quiz'},
   ];
 
  @override

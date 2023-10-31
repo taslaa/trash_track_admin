@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trash_track_admin/features/country/services/countries_service.dart';
+import 'package:trash_track_admin/features/quiz/services/quiz_service.dart';
 import 'package:trash_track_admin/features/reports/services/reports_screen.dart';
 import 'package:trash_track_admin/features/reservations/services/reservation_service.dart';
 import 'package:trash_track_admin/features/schedules/service/schedule_service.dart';
@@ -28,6 +29,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => ReservationService()),
         ChangeNotifierProvider(create: (_) => ScheduleService()),
         ChangeNotifierProvider(create: (_) => UserService()),
+        ChangeNotifierProvider(create: (_) => QuizService()),
       ],
       child: const MyApp(),
     ),

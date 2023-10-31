@@ -17,10 +17,10 @@ Schedule _$ScheduleFromJson(Map<String, dynamic> json) => Schedule(
           ? null
           : Vehicle.fromJson(json['vehicle'] as Map<String, dynamic>),
       scheduleDrivers: (json['scheduleDrivers'] as List<dynamic>?)
-          ?.map((e) => Map<String, int?>.from(e as Map))
+          ?.map((e) => ScheduleDriver.fromJson(e as Map<String, dynamic>))
           .toList(),
       scheduleGarbages: (json['scheduleGarbages'] as List<dynamic>?)
-          ?.map((e) => Map<String, int?>.from(e as Map))
+          ?.map((e) => ScheduleGarbage.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 

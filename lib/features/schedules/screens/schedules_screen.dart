@@ -16,11 +16,16 @@ import 'dart:convert';
 import 'package:trash_track_admin/features/user/services/users_service.dart';
 
 class SchedulesScreen extends StatefulWidget {
-  const SchedulesScreen({Key? key, this.schedule, required this.onAdd})
+  const SchedulesScreen(
+      {Key? key,
+      this.schedule,
+      required this.onAdd,
+      required this.onDisplayGarbages})
       : super(key: key);
 
   final Schedule? schedule;
   final Function() onAdd;
+  final Function(List<int>) onDisplayGarbages;
 
   @override
   _SchedulesScreenState createState() => _SchedulesScreenState();
@@ -35,7 +40,7 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
   PickupStatus? _selectedPickupStatus;
 
   int _currentPage = 1;
-  int _itemsPerPage = 3;
+  int _itemsPerPage = 10;
   int _totalRecords = 0;
 
   @override
@@ -101,6 +106,7 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
         setState(() {
           _schedules.removeAt(index);
         });
+        _loadPagedSchedules();
       } catch (error) {
         print('Error deleting garbage model: $error');
       }
@@ -151,6 +157,10 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
 
   void _onAdd() async {
     widget.onAdd();
+  }
+
+  void _onDisplayGarbages(List<int> garbageIds) async {
+    widget.onDisplayGarbages(garbageIds);
   }
 
   void _handlePageChange(int newPage) {
@@ -254,20 +264,6 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
                         color: const Color(0xFF49464E),
                       ),
                     ),
-                  ),
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    width: 400,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.white,
-                      border: Border.all(
-                        color: const Color(0xFF49464E),
-                      ),
-                    ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Container(
@@ -332,12 +328,14 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
                       TableCellWidget(text: 'Pickup status'),
                       TableCellWidget(text: 'Drivers'),
                       TableCellWidget(text: 'Vehicle'),
+                      TableCellWidget(text: 'Garbages'),
                       TableCellWidget(text: 'Actions'),
                     ],
                   ),
                   if (_isLoading)
                     TableRow(
                       children: [
+                        TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
@@ -359,11 +357,24 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
                                   schedule.pickupDate ?? DateTime.now())),
                           TableCellWidget(
                               text: mapPickupStatusToString(schedule.status!)),
-                          DriverTableCellWidget(
-                            textFuture: _fetchUserNamesForSchedule(schedule.id),
-                          ),
+                          TableCellWidget(
+                              text: schedule.scheduleDrivers!
+                                  .map((e) => e.driverId)
+                                  .join(', ')),
                           TableCellWidget(
                               text: schedule.vehicle?.licensePlateNumber ?? ''),
+                          TableCell(
+                              child: ElevatedButton(
+                                  onPressed: () {
+                                    final garbageIds = schedule
+                                        .scheduleGarbages!
+                                        .map((e) => e.garbageId)
+                                        .where((id) => id != null)
+                                        .map((id) => id!)
+                                        .toList();
+                                    _onDisplayGarbages(garbageIds);
+                                  },
+                                  child: Text('Show Garbages'))),
                           TableCell(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,

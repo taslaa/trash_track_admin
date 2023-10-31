@@ -273,12 +273,19 @@ class _ScheduleAddScreenState extends State<ScheduleAddScreen> {
                           }).toList() ??
                           [];
 
-                  final newSchedule = Schedule(
-                    pickupDate: _selectedDate,
-                    vehicleId: _selectedVehicleId,
-                    scheduleDrivers: _scheduleDrivers,
-                    scheduleGarbages: _scheduleGarbages,
-                  );
+                  // final newSchedule = Schedule(
+                  //   pickupDate: _selectedDate,
+                  //   vehicleId: _selectedVehicleId,
+                  //   scheduleDrivers: _scheduleDrivers,
+                  //   scheduleGarbages: _scheduleGarbages,
+                  // );
+
+                  final newSchedule = {
+                    'pickupDate': DateFormat('yyyy-MM-dd').format(_selectedDate),
+                    'vehicleId': _selectedVehicleId,
+                    'scheduleDrivers': _scheduleDrivers,
+                    'scheduleGarbages': _scheduleGarbages
+                  };
 
                   try {
                     await _scheduleService.insert(newSchedule);
