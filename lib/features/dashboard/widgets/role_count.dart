@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class CountByRoleWidget extends StatelessWidget {
@@ -58,7 +60,7 @@ class CountByRolePainter extends CustomPainter {
     );
 
     final userPaint = Paint()
-      ..color = Colors.green
+      ..color = Colors.red // Color for users
       ..style = PaintingStyle.fill;
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
@@ -69,7 +71,7 @@ class CountByRolePainter extends CustomPainter {
     );
 
     final driverPaint = Paint()
-      ..color = Colors.red
+      ..color = Colors.green
       ..style = PaintingStyle.fill;
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
@@ -78,6 +80,40 @@ class CountByRolePainter extends CustomPainter {
       true,
       driverPaint,
     );
+
+    // Display the role counts within their respective sectors
+    drawText(canvas, administratorCount.toString(), center, -3.141592 + (administratorAngle / 2), administratorPaint, size);
+    drawText(canvas, userCount.toString(), center, -3.141592 + administratorAngle + (userAngle / 2), userPaint, size);
+    drawText(canvas, driverCount.toString(), center, -3.141592 + administratorAngle + userAngle + (driverAngle / 2), driverPaint, size);
+  }
+
+  void drawText(Canvas canvas, String text, Offset center, double angle, Paint paint, Size size) {
+    final textSpan = TextSpan(
+      text: text,
+      style: TextStyle(
+        color: Colors.white, // Text color
+        fontSize: 18.0, // Text size
+      ),
+    );
+
+    final textPainter = TextPainter(
+      text: textSpan,
+      textDirection: TextDirection.ltr,
+    );
+
+    textPainter.layout(
+      minWidth: 0,
+      maxWidth: size.width,
+    );
+
+    final textWidth = textPainter.width;
+    final textHeight = textPainter.height;
+
+    final radius = size.width / 2;
+    final x = center.dx + (radius / 1.5) * cos(angle) - (textWidth / 2);
+    final y = center.dy + (radius / 1.5) * sin(angle) - (textHeight / 2);
+
+    textPainter.paint(canvas, Offset(x, y));
   }
 
   @override
@@ -85,3 +121,4 @@ class CountByRolePainter extends CustomPainter {
     return true;
   }
 }
+

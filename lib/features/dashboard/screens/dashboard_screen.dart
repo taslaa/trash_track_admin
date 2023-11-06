@@ -21,13 +21,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> fetchData() async {
     final adminCountResponse = await http
-        .get(Uri.parse('https://localhost:7090/api/Users/AdministratorCount'));
+        .get(Uri.parse('http://localhost:5057/api/Users/AdministratorCount'));
     final userCountResponse =
-        await http.get(Uri.parse('https://localhost:7090/api/Users/UserCount'));
+        await http.get(Uri.parse('http://localhost:5057/api/Users/UserCount'));
     final driverCountResponse = await http
-        .get(Uri.parse('https://localhost:7090/api/Users/DriverCount'));
+        .get(Uri.parse('http://localhost:5057/api/Users/DriverCount'));
 
-    if (adminCountResponse.statusCode == 204) {
+    if (adminCountResponse.statusCode == 200) {
       final adminData = int.parse(adminCountResponse.body);
       setState(() {
         administratorCount = adminData;
