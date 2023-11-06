@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trash_track_admin/features/admin-panel/screens/admin_panel._screen.dart';
+import 'package:trash_track_admin/features/user/screens/forgot_password_screen.dart'; // Import your ForgotPasswordScreen file
 import 'package:trash_track_admin/features/user/services/auth_service.dart'; // Adjust the import path to your AuthService file
 import 'package:trash_track_admin/features/user/widgets/success_screen.dart';
 
@@ -51,6 +52,14 @@ class _LoginScreenState extends State<LoginScreen> {
         },
       );
     }
+  }
+
+  void _handleForgotPassword() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ForgotPasswordScreen(),
+      ),
+    );
   }
 
   @override
@@ -118,11 +127,14 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 10),
             Align(
               alignment: Alignment.center,
-              child: Text(
-                'Forgot Password?',
-                style: TextStyle(
-                  color: Color(0xFF49464E), 
-                  fontWeight: FontWeight.bold
+              child: GestureDetector(
+                onTap: _handleForgotPassword, // Navigate to the ForgotPasswordScreen when tapped
+                child: Text(
+                  'Forgot Password?',
+                  style: TextStyle(
+                    color: Color(0xFF49464E), 
+                    fontWeight: FontWeight.bold
+                  ),
                 ),
               ),
             ),

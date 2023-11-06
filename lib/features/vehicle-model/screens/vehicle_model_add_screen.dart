@@ -4,6 +4,10 @@ import 'package:trash_track_admin/features/vehicle-model/services/vehicle_models
 import 'package:trash_track_admin/shared/services/enums_service.dart';
 
 class VehicleModelAddScreen extends StatefulWidget {
+  final Function(String) onUpdateRoute;
+
+  VehicleModelAddScreen({required this.onUpdateRoute});
+
   @override
   _VehicleModelAddScreenState createState() => _VehicleModelAddScreenState();
 }
@@ -21,7 +25,7 @@ class _VehicleModelAddScreenState extends State<VehicleModelAddScreen> {
     super.initState();
     _enumsService = EnumsService();
     _nameController = TextEditingController();
-    _selectedVehicleTypeIndex = 0; // Set the default vehicle type
+    _selectedVehicleTypeIndex = 0;
     _fetchVehicleTypes();
   }
 
@@ -48,16 +52,38 @@ class _VehicleModelAddScreenState extends State<VehicleModelAddScreen> {
     }
   }
 
+  void _goBack() {
+    widget.onUpdateRoute('vehicle_models');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
+      body: Align(
+        alignment: Alignment.topLeft,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: _goBack,
+                ),
+              ],
+            ),
+            const SizedBox(height: 100),
+            Text(
+              'Add Vehicle Model',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: 400,
+              child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Container(
                   width: 400,
@@ -83,10 +109,13 @@ class _VehicleModelAddScreenState extends State<VehicleModelAddScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              _isLoading
-                  ? CircularProgressIndicator()
-                  : Padding(
+            ),
+            const SizedBox(height: 16),
+            _isLoading
+                ? CircularProgressIndicator()
+                : SizedBox(
+                    width: 400,
+                    child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Container(
                         width: 400,
@@ -94,7 +123,7 @@ class _VehicleModelAddScreenState extends State<VehicleModelAddScreen> {
                           borderRadius: BorderRadius.circular(10),
                           color: Colors.white,
                           border: Border.all(
-                            color: Color(0xFF49464E),
+                            color: const Color(0xFF49464E),
                           ),
                         ),
                         child: Padding(
@@ -117,14 +146,17 @@ class _VehicleModelAddScreenState extends State<VehicleModelAddScreen> {
                               border: InputBorder.none,
                             ),
                             style: TextStyle(
-                              color: Color(0xFF49464E),
+                              color: const Color(0xFF49464E),
                             ),
                           ),
                         ),
                       ),
                     ),
-              const SizedBox(height: 16),
-              ElevatedButton(
+                  ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: 400,
+              child: ElevatedButton(
                 onPressed: () async {
                   final selectedVehicleType =
                       VehicleType.values[_selectedVehicleTypeIndex];
@@ -139,27 +171,25 @@ class _VehicleModelAddScreenState extends State<VehicleModelAddScreen> {
                   try {
                     await vehicleModelService.insert(newVehicleModel);
 
-                    Navigator.pop(context, 'reload');
+                    widget.onUpdateRoute('vehicle_models');
                   } catch (error) {
                     print('Error adding vehicle model: $error');
                   }
                 },
-                child: Text(
-                  'Add',
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(width: 8),
+                    const Text('Add Vehicle Model'),
+                  ],
                 ),
                 style: ElevatedButton.styleFrom(
-                  primary: Color(0xFF49464E),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  primary: const Color(0xFF49464E),
                   minimumSize: Size(400, 48),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

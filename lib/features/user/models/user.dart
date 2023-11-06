@@ -14,14 +14,12 @@ class UserEntity {
   String? biography;
   DateTime? birthDate;
   Gender? gender; 
-  int? genderId; 
   int? countryId;
   Country? country;
-  int? roleId;
   Role? role;
-  int? profilePhotoId;
-  Photo? profilePhoto;
+  String? profilePhoto;
   bool? isActive;
+  bool? isVerified;
 
   UserEntity({
     this.id,
@@ -32,14 +30,12 @@ class UserEntity {
     this.biography,
     this.birthDate,
     this.gender,
-    this.genderId,
     this.country,
     this.countryId,
     this.role,
-    this.roleId,
     this.profilePhoto,
-    this.profilePhotoId,
     this.isActive,
+    this.isVerified
   });
 
   factory UserEntity.fromJson(Map<String, dynamic> json) =>
@@ -56,4 +52,5 @@ enum Gender {
 enum Role {
   administrator,
   user,
+  driver
 }

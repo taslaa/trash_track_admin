@@ -7,22 +7,24 @@ part of 'garbage.dart';
 // **************************************************************************
 
 Garbage _$GarbageFromJson(Map<String, dynamic> json) => Garbage(
-      description: json['description'] as String?,
+      address: json['address'] as String?,
       garbageType:
           $enumDecodeNullable(_$GarbageTypeEnumMap, json['garbageType']),
       latitude: (json['latitude'] as num?)?.toDouble(),
       longitude: (json['longitude'] as num?)?.toDouble(),
-    );
+    )..id = json['id'] as int?;
 
 Map<String, dynamic> _$GarbageToJson(Garbage instance) => <String, dynamic>{
-      'description': instance.description,
+      'id': instance.id,
+      'address': instance.address,
       'garbageType': _$GarbageTypeEnumMap[instance.garbageType],
       'latitude': instance.latitude,
       'longitude': instance.longitude,
     };
 
 const _$GarbageTypeEnumMap = {
-  GarbageType.type1: 'type1',
-  GarbageType.type2: 'type2',
-  GarbageType.type3: 'type3',
+  GarbageType.plastic: 'Plastic',
+  GarbageType.glass: 'Glass',
+  GarbageType.metal: 'Metal',
+  GarbageType.organic: 'Organic',
 };
