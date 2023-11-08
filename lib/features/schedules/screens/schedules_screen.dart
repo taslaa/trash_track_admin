@@ -71,7 +71,8 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
       );
 
       setState(() {
-        _schedules = models.items;
+        _schedules.clear(); // Clear the existing list
+        _schedules.addAll(models.items); // Add the fetched schedules
         _totalRecords = models.totalCount;
         _isLoading = false;
       });
@@ -95,7 +96,7 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
     }
   }
 
-  void _deleteSchedule(int index) {
+  void _deleteSchedule(int index) async {
     final schedule = _schedules[index];
     final id = schedule.id ?? 0;
 
@@ -106,7 +107,7 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
         setState(() {
           _schedules.removeAt(index);
         });
-        _loadPagedSchedules();
+        await _loadPagedSchedules(); // Wait for the load to complete before refreshing the list
       } catch (error) {
         print('Error deleting garbage model: $error');
       }
@@ -359,7 +360,7 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
                               text: mapPickupStatusToString(schedule.status!)),
                           TableCellWidget(
                               text: schedule.scheduleDrivers!
-                                  .map((e) => e.driverId)
+                                  .map((e) => e.driver!.firstName)
                                   .join(', ')),
                           TableCellWidget(
                               text: schedule.vehicle?.licensePlateNumber ?? ''),

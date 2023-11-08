@@ -11,6 +11,9 @@ ScheduleDriver _$ScheduleDriverFromJson(Map<String, dynamic> json) =>
       id: json['id'] as int?,
       scheduleId: json['scheduleId'] as int?,
       driverId: json['driverId'] as int?,
+      driver: json['driver'] == null
+          ? null
+          : UserEntity.fromJson(json['driver'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ScheduleDriverToJson(ScheduleDriver instance) =>
@@ -18,4 +21,5 @@ Map<String, dynamic> _$ScheduleDriverToJson(ScheduleDriver instance) =>
       'id': instance.id,
       'scheduleId': instance.scheduleId,
       'driverId': instance.driverId,
+      'driver': instance.driver,
     };
