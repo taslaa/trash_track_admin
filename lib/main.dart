@@ -4,14 +4,15 @@ import 'package:trash_track_admin/features/country/services/countries_service.da
 import 'package:trash_track_admin/features/quiz/services/quiz_service.dart';
 import 'package:trash_track_admin/features/reports/services/reports_screen.dart';
 import 'package:trash_track_admin/features/reservations/services/reservation_service.dart';
+import 'package:trash_track_admin/features/schedules/models/selected_values_model.dart';
 import 'package:trash_track_admin/features/schedules/service/schedule_service.dart';
 import 'package:trash_track_admin/features/services/service/services_service.dart';
-import 'package:trash_track_admin/features/user/screens/login_screen.dart'; 
+import 'package:trash_track_admin/features/user/screens/login_screen.dart';
 import 'package:trash_track_admin/features/user/services/auth_service.dart';
 import 'package:trash_track_admin/features/user/services/users_service.dart';
 import 'package:trash_track_admin/features/vehicle-model/services/vehicle_models_service.dart';
 import 'package:trash_track_admin/features/garbage/services/garbage_service.dart';
-import 'package:flutter/services.dart'; 
+import 'package:flutter/services.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +31,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => ScheduleService()),
         ChangeNotifierProvider(create: (_) => UserService()),
         ChangeNotifierProvider(create: (_) => QuizService()),
+        ChangeNotifierProvider(create: (_) => SelectedValuesModel()),
       ],
       child: const MyApp(),
     ),
@@ -54,4 +56,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

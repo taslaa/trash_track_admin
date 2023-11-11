@@ -54,4 +54,5 @@ enum Gender {
 enum Role {
   administrator,
   user,
+  driver
 }

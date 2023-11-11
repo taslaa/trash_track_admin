@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:flutter_paypal/flutter_paypal.dart';
 import 'package:trash_track_admin/features/garbage/models/garbage.dart';
 import 'package:trash_track_admin/features/schedules/models/schedule.dart';
 import 'package:trash_track_admin/features/schedules/models/schedule_driver.dart';
+import 'package:trash_track_admin/features/schedules/models/selected_values_model.dart';
 import 'package:trash_track_admin/features/schedules/service/schedule_provider.dart';
 import 'package:trash_track_admin/features/schedules/service/schedule_service.dart';
 import 'package:trash_track_admin/features/user/models/user.dart';
@@ -96,6 +98,7 @@ class _ScheduleAddScreenState extends State<ScheduleAddScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final selectedValuesModel = Provider.of<SelectedValuesModel>(context);
     return Scaffold(
       body: Align(
         alignment: Alignment.topLeft,
@@ -165,15 +168,20 @@ class _ScheduleAddScreenState extends State<ScheduleAddScreen> {
                           child: DropDownMultiSelect(
                             options:
                                 _users.map((user) => user.firstName).toList(),
-                            selectedValues: _selectedUsers
+                            selectedValues: selectedValuesModel.selectedUsers
                                 .map((user) => user.firstName)
                                 .toList(),
                             onChanged: (values) {
                               setState(() {
-                                _selectedUsers = _users
+                                final selectedUsers = _users
                                     .where((user) =>
                                         values.contains(user.firstName))
                                     .toList();
+                                selectedValuesModel.updateUser(selectedUsers);
+                              });
+                              setState(() {
+                                _selectedUsers =
+                                    selectedValuesModel.selectedUsers;
                               });
                               print(_selectedUsers);
                             },
@@ -232,9 +240,10 @@ class _ScheduleAddScreenState extends State<ScheduleAddScreen> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: DropdownButtonFormField<int>(
-                      value: _selectedVehicleId,
+                      value: selectedValuesModel.selectedVehicleId,
                       onChanged: (newValue) {
                         setState(() {
+                          selectedValuesModel.updateVehicle(newValue ?? 0);
                           _selectedVehicleId = newValue ?? 0;
                         });
                       },
@@ -259,13 +268,15 @@ class _ScheduleAddScreenState extends State<ScheduleAddScreen> {
               child: ElevatedButton(
                 onPressed: () async {
                   final List<Map<String, int?>> _scheduleDrivers =
-                      _selectedUsers.map((user) {
+                      selectedValuesModel.selectedUsers.map((user) {
                     return {
                       "DriverId": user.id,
                     };
                   }).toList();
 
-                  final List<Map<String, int?>> _scheduleGarbages =
+                  print(_scheduleDrivers);
+
+                  final List<Map<String, int?>> _scheduleGarbages = await
                       widget.selectedGarbages?.map((garbage) {
                             return {
                               "GarbageId": garbage.id,
@@ -273,24 +284,19 @@ class _ScheduleAddScreenState extends State<ScheduleAddScreen> {
                           }).toList() ??
                           [];
 
-                  // final newSchedule = Schedule(
-                  //   pickupDate: _selectedDate,
-                  //   vehicleId: _selectedVehicleId,
-                  //   scheduleDrivers: _scheduleDrivers,
-                  //   scheduleGarbages: _scheduleGarbages,
-                  // );
-
                   final newSchedule = {
-                    'pickupDate': DateFormat('yyyy-MM-dd').format(_selectedDate),
+                    'pickupDate':
+                        DateFormat('yyyy-MM-dd').format(_selectedDate),
                     'vehicleId': _selectedVehicleId,
                     'scheduleDrivers': _scheduleDrivers,
                     'scheduleGarbages': _scheduleGarbages
                   };
-
+                  print(newSchedule);
                   try {
                     await _scheduleService.insert(newSchedule);
 
-                    widget.onUpdateRoute('dashboard');
+                    widget.onUpdateRoute('schedules');
+                    selectedValuesModel.reset();
                   } catch (error) {
                     print('Error adding schedule: $error');
                   }

@@ -55,4 +55,5 @@ const _$GenderEnumMap = {
 const _$RoleEnumMap = {
   Role.administrator: 'Administrator',
   Role.user: 'User',
+  Role.driver: 'Driver',
 };

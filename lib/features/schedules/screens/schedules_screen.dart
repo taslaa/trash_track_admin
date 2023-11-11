@@ -330,13 +330,11 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
                       TableCellWidget(text: 'Drivers'),
                       TableCellWidget(text: 'Vehicle'),
                       TableCellWidget(text: 'Garbages'),
-                      TableCellWidget(text: 'Actions'),
                     ],
                   ),
                   if (_isLoading)
                     TableRow(
                       children: [
-                        TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
@@ -376,20 +374,6 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
                                     _onDisplayGarbages(garbageIds);
                                   },
                                   child: Text('Show Garbages'))),
-                          TableCell(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    _deleteSchedule(index);
-                                  },
-                                  icon: Icon(Icons.delete,
-                                      color: Color(0xFF1D1C1E)),
-                                ),
-                              ],
-                            ),
-                          ),
                         ],
                       );
                     }),
