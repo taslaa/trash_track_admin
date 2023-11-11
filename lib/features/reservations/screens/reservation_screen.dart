@@ -16,7 +16,6 @@ class ReservationScreen extends StatefulWidget {
   final Reservation? reservation;
   final Function(Reservation) onEdit;
 
-
   @override
   _ReservationScreenState createState() => _ReservationScreenState();
 }
@@ -29,7 +28,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
 
   ReservationStatus? _selectedReservationStatus;
   int _currentPage = 1;
-  int _itemsPerPage = 3;
+  int _itemsPerPage = 5;
   int _totalRecords = 0;
 
   @override
@@ -51,13 +50,13 @@ class _ReservationScreenState extends State<ReservationScreen> {
     _loadPagedReservation();
   }
 
-   String mapReservationStatusToString(ReservationStatus? status) {
+  String mapReservationStatusToString(ReservationStatus? status) {
     if (status == null) {
       return 'Unknown';
     }
     switch (status) {
       case ReservationStatus.inProgress:
-        return 'In Progress';
+        return 'InProgress';
       case ReservationStatus.done:
         return 'Done';
       default:
@@ -203,20 +202,6 @@ class _ReservationScreenState extends State<ReservationScreen> {
                         color: const Color(0xFF49464E),
                       ),
                     ),
-                  ),
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    width: 400,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.white,
-                      border: Border.all(
-                        color: const Color(0xFF49464E),
-                      ),
-                    ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Container(
@@ -237,8 +222,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
                             ...ReservationStatus.values.map((type) {
                               return DropdownMenuItem<ReservationStatus>(
                                 value: type,
-                                child: Text(mapReservationStatusToString(
-                                    type)), 
+                                child: Text(mapReservationStatusToString(type)),
                               );
                             }).toList(),
                           ],
@@ -307,14 +291,19 @@ class _ReservationScreenState extends State<ReservationScreen> {
                           color: Colors.transparent,
                         ),
                         children: [
-                          TableCellWidget(text: reservation.user?.firstName ?? ''),
-                          TableCellWidget(text: reservation.service?.name ?? ''),
+                          TableCellWidget(
+                              text: reservation.user?.firstName ?? ''),
+                          TableCellWidget(
+                              text: reservation.service?.name ?? ''),
                           TableCellWidget(
                               text: mapReservationStatusToString(
                                   reservation.status!)),
-                          TableCellWidget(text: reservation.latitude?.toString() ?? ''),
-                          TableCellWidget(text: reservation.longitude?.toString() ?? ''),
-                          TableCellWidget(text: reservation.price?.toString() ?? ''),
+                          TableCellWidget(
+                              text: reservation.latitude?.toString() ?? ''),
+                          TableCellWidget(
+                              text: reservation.longitude?.toString() ?? ''),
+                          TableCellWidget(
+                              text: reservation.price?.toString() ?? ''),
                           TableCell(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,

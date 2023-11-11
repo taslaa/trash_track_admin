@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:trash_track_admin/features/admin-panel/screens/admin_panel._screen.dart';
-import 'package:trash_track_admin/features/user/screens/forgot_password_screen.dart'; // Import your ForgotPasswordScreen file
 import 'package:trash_track_admin/features/user/services/auth_service.dart'; // Adjust the import path to your AuthService file
 import 'package:trash_track_admin/features/user/widgets/success_screen.dart';
 
@@ -54,108 +53,92 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _handleForgotPassword() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => ForgotPasswordScreen(),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white, // Background color set to white
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Login to Account',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.black, // Text color
-              ),
-            ),
-            SizedBox(height: 20),
-            Container(
-              width: 400, // Adjust the width as needed
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.white, // Input background color
-                border: Border.all(
-                  color: Color(0xFF49464E), // Border color when not focused
-                ),
-              ),
-              child: TextField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: Icon(Icons.email), // Email icon
-                  border: InputBorder.none, // Remove default input border
-                ),
+      body: Center(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Login to Account',
                 style: TextStyle(
-                  color: Color(0xFF49464E), // Text color when focused
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black, // Text color
                 ),
               ),
-            ),
-            SizedBox(height: 10),
-            Container(
-              width: 400, // Adjust the width as needed
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.white, // Input background color
-                border: Border.all(
-                  color: Color(0xFF49464E), // Border color when not focused
+              SizedBox(height: 20),
+              Container(
+                width: 400, // Adjust the width as needed
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.white, // Input background color
+                  border: Border.all(
+                    color: Color(0xFF49464E), // Border color when not focused
+                  ),
                 ),
-              ),
-              child: TextField(
-                controller: _passwordController,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  prefixIcon: Icon(Icons.lock), // Password icon
-                  border: InputBorder.none, // Remove default input border
-                ),
-                style: TextStyle(
-                  color: Color(0xFF49464E), // Text color when focused
-                ),
-                obscureText: true,
-              ),
-            ),
-            SizedBox(height: 10),
-            Align(
-              alignment: Alignment.center,
-              child: GestureDetector(
-                onTap: _handleForgotPassword, // Navigate to the ForgotPasswordScreen when tapped
-                child: Text(
-                  'Forgot Password?',
+                child: TextField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    prefixIcon: Icon(Icons.email), // Email icon
+                    border: InputBorder.none, // Remove default input border
+                  ),
                   style: TextStyle(
-                    color: Color(0xFF49464E), 
-                    fontWeight: FontWeight.bold
+                    color: Color(0xFF49464E), // Text color when focused
                   ),
                 ),
               ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _handleSignIn,
-              child: Text(
-                'Sign In',
-                style: TextStyle(
-                  fontSize: 16,
+              SizedBox(height: 10),
+              Container(
+                width: 400, // Adjust the width as needed
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.white, // Input background color
+                  border: Border.all(
+                    color: Color(0xFF49464E), // Border color when not focused
+                  ),
+                ),
+                child: TextField(
+                  controller: _passwordController,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    prefixIcon: Icon(Icons.lock), // Password icon
+                    border: InputBorder.none, // Remove default input border
+                  ),
+                  style: TextStyle(
+                    color: Color(0xFF49464E), // Text color when focused
+                  ),
+                  obscureText: true,
                 ),
               ),
-              style: ElevatedButton.styleFrom(
-                primary: Color(0xFF49464E), // Button color
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10), // Button border radius
+              SizedBox(height: 10),
+              SizedBox(height: 20),
+              SizedBox(
+                width: 400, // Set the button width to match input fields
+                child: ElevatedButton(
+                  onPressed: _handleSignIn,
+                  child: Text(
+                    'Sign In',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    primary: Color(0xFF49464E), // Button color
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10), // Button border radius
+                    ),
+                    minimumSize: Size(400, 48), // Button size
+                  ),
                 ),
-                minimumSize: Size(400, 48), // Button size
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

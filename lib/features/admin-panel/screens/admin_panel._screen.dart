@@ -19,6 +19,7 @@ import 'package:trash_track_admin/features/reservations/screens/reservation_edit
 import 'package:trash_track_admin/features/reservations/screens/reservation_screen.dart';
 import 'package:trash_track_admin/features/schedules/screens/garbage_select_screen.dart';
 import 'package:trash_track_admin/features/schedules/screens/schedules_screen.dart';
+import 'package:trash_track_admin/features/schedules/screens/schedule_add_screen.dart';
 import 'package:trash_track_admin/features/services/models/service.dart';
 import 'package:trash_track_admin/features/services/screens/services_add_screen.dart';
 import 'package:trash_track_admin/features/services/screens/services_edit_screen.dart';
@@ -495,7 +496,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
         );
 
       case 'quiz/edit':
-        if (selectedCity != null) {
+        if (selectedQuiz != null) {
           return QuizEditScreen(
             quiz: selectedQuiz!,
             onUpdateRoute: updateSelectedRoute,

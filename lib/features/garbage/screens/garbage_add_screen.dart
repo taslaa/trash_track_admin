@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:trash_track_admin/features/garbage/models/garbage.dart';
+import 'package:trash_track_admin/features/garbage/models/garbage_selected_values_model.dart';
 import 'package:trash_track_admin/features/garbage/screens/map_screen.dart';
 import 'package:trash_track_admin/features/garbage/services/garbage_service.dart';
 import 'package:trash_track_admin/shared/services/enums_service.dart';
@@ -75,6 +77,7 @@ class _AddPlaceScreenState extends State<GarbageAddScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final selectedValuesModel = Provider.of<GarbageSelectedValuesModel>(context);
     return Scaffold(
       body: Align(
         alignment: Alignment.topLeft,
@@ -147,10 +150,10 @@ class _AddPlaceScreenState extends State<GarbageAddScreen> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: DropdownButtonFormField<int>(
-                            value: _selectedGarbageTypeIndex,
+                            value: selectedValuesModel.selectedGarbageTypeIndex,
                             onChanged: (newValue) {
                               setState(() {
-                                _selectedGarbageTypeIndex = newValue ?? 0;
+                                selectedValuesModel.selectedGarbageTypeIndex = newValue ?? 0;
                               });
                             },
                             items: _garbageTypes.entries.map((entry) {
@@ -203,7 +206,7 @@ class _AddPlaceScreenState extends State<GarbageAddScreen> {
                   }
 
                   final selectedGarbageType =
-                      GarbageType.values[_selectedGarbageTypeIndex];
+                      GarbageType.values[selectedValuesModel.selectedGarbageTypeIndex];
 
                   final newName = _addressController;
 

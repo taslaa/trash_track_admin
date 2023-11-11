@@ -30,7 +30,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   String _note = '';
 
   int _currentPage = 1;
-  int _itemsPerPage = 3;
+  int _itemsPerPage = 5;
   int _totalRecords = 0;
 
   @override
@@ -58,7 +58,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       case ReportState.reviewed:
         return 'Reviewed';
       case ReportState.waitingForReview:
-        return 'Waiting For Review';
+        return 'WaitingForReview';
       default:
         return '';
     }

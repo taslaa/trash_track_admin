@@ -40,7 +40,7 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
   PickupStatus? _selectedPickupStatus;
 
   int _currentPage = 1;
-  int _itemsPerPage = 10;
+  int _itemsPerPage = 5;
   int _totalRecords = 0;
 
   @override
@@ -64,7 +64,7 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
     try {
       final models = await _scheduleService.getPaged(
         filter: {
-          'pickupStatus': mapPickupStatusToString(_selectedPickupStatus),
+          'status': mapPickupStatusToString(_selectedPickupStatus),
           'pageNumber': _currentPage,
           'pageSize': _itemsPerPage,
         },

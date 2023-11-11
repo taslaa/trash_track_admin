@@ -176,7 +176,7 @@ class _ServiceEditScreenState extends State<ServiceEditScreen> {
                     try {
                       await _servicesService.update(editedService);
 
-                      widget.onUpdateRoute('service_models');
+                      widget.onUpdateRoute('services');
                     } catch (error) {
                       print('Error saving service: $error');
                     }

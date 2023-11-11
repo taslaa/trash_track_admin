@@ -32,7 +32,7 @@ class _VehicleModelsScreenState extends State<VehicleModelsScreen> {
   String _searchQuery = '';
 
   int _currentPage = 1;
-  int _itemsPerPage = 3;
+  int _itemsPerPage = 5;
   int _totalRecords = 0;
 
   @override

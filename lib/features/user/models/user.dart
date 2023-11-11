@@ -1,6 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:trash_track_admin/features/country/models/country.dart';
-import 'package:trash_track_admin/features/photo/models/photo.dart';
 
 part 'user.g.dart';
 

@@ -240,6 +240,7 @@ class QuestionInput extends StatelessWidget {
               ),
             ),
             child: TextFormField(
+              controller: TextEditingController(text: question.content),
               onChanged: (value) {
                 question.content = value;
                 onQuestionChanged(question);
@@ -266,6 +267,8 @@ class QuestionInput extends StatelessWidget {
               ),
             ),
             child: TextFormField(
+              controller:
+                  TextEditingController(text: question.points.toString()),
               onChanged: (value) {
                 question.points = int.tryParse(value) ?? 0;
                 onQuestionChanged(question);
@@ -281,7 +284,7 @@ class QuestionInput extends StatelessWidget {
           ),
           SizedBox(height: 16),
           Text(
-            'Answers:', // Redesigned text
+            'Answers:',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -311,6 +314,8 @@ class QuestionInput extends StatelessWidget {
                             ),
                           ),
                           child: TextFormField(
+                            controller: TextEditingController(
+                                text: entry.value['content']),
                             onChanged: (value) {
                               entry.value['content'] = value;
                               onQuestionChanged(question);
@@ -327,15 +332,14 @@ class QuestionInput extends StatelessWidget {
                       ),
                       SizedBox(width: 8.0),
                       Expanded(
-                        flex: 1,
-                        child: Switch(
-                          value: entry.value['isTrue'] == true,
-                          onChanged: (value) {
-                            entry.value['isTrue'] = value;
-                            onQuestionChanged(question);
-                          },
-                        ),
-                      ),
+                          flex: 1,
+                          child: Switch(
+                            value: entry.value['isTrue'] == true,
+                            onChanged: (value) {
+                              entry.value['isTrue'] = value;
+                              onQuestionChanged(question);
+                            },
+                          )),
                       IconButton(
                         onPressed: () {
                           if (question.answers != null) {

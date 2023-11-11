@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trash_track_admin/features/country/services/countries_service.dart';
+import 'package:trash_track_admin/features/garbage/models/garbage_selected_values_model.dart';
 import 'package:trash_track_admin/features/quiz/services/quiz_service.dart';
 import 'package:trash_track_admin/features/reports/services/reports_service.dart';
 import 'package:trash_track_admin/features/reservations/services/reservation_service.dart';
@@ -32,6 +33,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => UserService()),
         ChangeNotifierProvider(create: (_) => QuizService()),
         ChangeNotifierProvider(create: (_) => SelectedValuesModel()),
+        ChangeNotifierProvider(create: (_) => GarbageSelectedValuesModel()),
         ChangeNotifierProvider(create: (_) => UserService()),
       ],
       child: const MyApp(),

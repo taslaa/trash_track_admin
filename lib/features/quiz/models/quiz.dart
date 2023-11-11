@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:trash_track_admin/features/quiz/models/question.dart';
 
 part 'quiz.g.dart';
 

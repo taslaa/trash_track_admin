@@ -28,7 +28,7 @@ class _GarbageScreenState extends State<GarbageScreen> {
   String _address = '';
 
   int _currentPage = 1;
-  int _itemsPerPage = 3;
+  int _itemsPerPage = 5;
   int _totalRecords = 0;
 
   @override

@@ -27,7 +27,7 @@ class _CountriesScreenState extends State<CountriesScreen> {
   String _activityStatus = '';
 
   int _currentPage = 1;
-  int _itemsPerPage = 3;
+  int _itemsPerPage = 5;
   int _totalRecords = 0;
 
   @override

@@ -189,7 +189,7 @@ class _CountryEditScreenState extends State<CountryEditScreen> {
                     try {
                       await _countryService.update(editedCountry);
 
-                      widget.onUpdateRoute('country_models');
+                      widget.onUpdateRoute('countries');
                     } catch (error) {
                       print('Error saving country: $error');
                     }
