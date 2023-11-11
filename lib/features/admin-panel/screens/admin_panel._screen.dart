@@ -14,14 +14,18 @@ import 'package:trash_track_admin/features/quiz/screens/quiz_edit_screen.dart';
 import 'package:trash_track_admin/features/reports/models/report.dart';
 import 'package:trash_track_admin/features/reports/screens/report_edit_screen.dart';
 import 'package:trash_track_admin/features/reports/screens/reports_screen.dart';
+import 'package:trash_track_admin/features/reservations/models/reservation.dart';
+import 'package:trash_track_admin/features/reservations/screens/reservation_edit_screen.dart';
 import 'package:trash_track_admin/features/reservations/screens/reservation_screen.dart';
 import 'package:trash_track_admin/features/schedules/screens/garbage_select_screen.dart';
-import 'package:trash_track_admin/features/schedules/screens/schedule_add_screen.dart';
 import 'package:trash_track_admin/features/schedules/screens/schedules_screen.dart';
 import 'package:trash_track_admin/features/services/models/service.dart';
 import 'package:trash_track_admin/features/services/screens/services_add_screen.dart';
 import 'package:trash_track_admin/features/services/screens/services_edit_screen.dart';
 import 'package:trash_track_admin/features/services/screens/services_screen.dart';
+import 'package:trash_track_admin/features/user/models/user.dart';
+import 'package:trash_track_admin/features/user/screens/user_edit_screen.dart';
+import 'package:trash_track_admin/features/user/screens/users_screen.dart';
 import 'package:trash_track_admin/features/vehicle-model/models/vehicle_model.dart';
 import 'package:trash_track_admin/features/vehicle-model/screens/vehicle_model_add_screen.dart';
 import 'package:trash_track_admin/features/vehicle-model/screens/vehicle_model_edit_screen.dart';
@@ -61,6 +65,8 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
   Report? selectedReport;
   Quiz? selectedQuiz;
   List<int>? selectedGarbagesIds;
+  Reservation? selectedReservation;
+  UserEntity? selectedUser;
 
   LatLng? _selectedGarbageLocation = LatLng(43.3422, 17.8128);
   String? selectedAddress = '';
@@ -100,6 +106,14 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     setState(() {
       selectedVehicle = vehicle;
       selectedRoute = 'vehicles/edit';
+    });
+  }
+
+  // User Callbacks
+  void onEditUser(UserEntity user) {
+    setState(() {
+      selectedUser = user;
+      selectedRoute = 'users/edit';
     });
   }
 
@@ -221,6 +235,14 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     setState(() {
       selectedReport = report;
       selectedRoute = 'reports/edit';
+    });
+  }
+
+  //Reservation Callbacks
+  void onEditReservation(Reservation reservation) {
+    setState(() {
+      selectedReservation = reservation;
+      selectedRoute = 'reservations/edit';
     });
   }
 
@@ -432,7 +454,33 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
 
       // Reservations
       case 'reservations':
-        return ReservationScreen();
+        return ReservationScreen(
+          onEdit: onEditReservation,
+        );
+      case 'reservations/edit':
+        if (selectedReservation != null) {
+          return ReservationEditScreen(
+            reservation: selectedReservation!,
+            onUpdateRoute: updateSelectedRoute,
+          );
+        } else {
+          return const Text('Invalid Reservation');
+        }
+
+      //Users
+      case 'users':
+        return UsersScreen(
+          onEdit: onEditUser,
+        );
+      case 'users/edit':
+        if (selectedUser != null) {
+          return UserEditScreen(
+            user: selectedUser!,
+            onUpdateRoute: updateSelectedRoute,
+          );
+        } else {
+          return const Text('Invalid User');
+        }
 
       // QUIZZES
       case 'quiz':

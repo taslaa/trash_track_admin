@@ -111,4 +111,31 @@ class EnumsService {
       throw Exception('Failed to load pickupStatus');
     }
   }
+
+   Future<Map<int, String>> getReservationStatus() async {
+    final response = await http
+        .get(Uri.parse('http://localhost:5057/api/Enums/reservation-status'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+
+      final Map<int, String> reservationStatusMap = {};
+
+      for (var item in data) {
+        if (item is Map<String, dynamic> &&
+            item.containsKey('key') && // Change to 'key'
+            item.containsKey('value')) {
+          // Change to 'value'
+          final int typeValue = item['key']; // Change to 'key'
+          final String typeName = item['value']; // Change to 'value'
+
+          reservationStatusMap[typeValue] = typeName;
+        }
+      }
+
+      return reservationStatusMap;
+    } else {
+      throw Exception('Failed to load reservation status');
+    }
+  }
 }

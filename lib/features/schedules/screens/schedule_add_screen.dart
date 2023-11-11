@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:flutter_paypal/flutter_paypal.dart';
 import 'package:trash_track_admin/features/garbage/models/garbage.dart';
-import 'package:trash_track_admin/features/schedules/models/schedule.dart';
 import 'package:trash_track_admin/features/schedules/models/schedule_driver.dart';
 import 'package:trash_track_admin/features/schedules/models/selected_values_model.dart';
 import 'package:trash_track_admin/features/schedules/service/schedule_provider.dart';

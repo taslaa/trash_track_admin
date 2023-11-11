@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:trash_track_admin/features/reports/models/report.dart';
-import 'package:trash_track_admin/features/reports/services/reports_screen.dart';
-import 'package:trash_track_admin/features/vehicle-model/models/vehicle_model.dart';
-import 'package:trash_track_admin/features/vehicle-model/services/vehicle_models_service.dart';
+import 'package:trash_track_admin/features/reports/services/reports_service.dart';
 import 'package:trash_track_admin/shared/services/enums_service.dart';
 import 'dart:convert';
 
@@ -221,12 +219,11 @@ class _ReportEditScreenState extends State<ReportEditScreen> {
 
                   final editedReport = Report(
                     id: widget.report.id,
-                    reportType: selectedReportType,
                     reportState: selectedReportState,
                   );
 
                   try {
-                    await reportService.update(editedReport);
+                    await reportService.updateReportState(editedReport);
 
                     widget.onUpdateRoute('reports');
                   } catch (error) {
