@@ -38,7 +38,7 @@ dependencies:
   json_annotation: ^4.8.1
   intl: ^0.17.0 #for mapping models from json and to json
   flutter_form_builder: ^6.1.0
-  file_picker: ^4.6.1
+  file_picker: ^5.3.1
   flutter_spinkit: "^5.0.0"
   flutter_paypal: ^0.0.4
 
@@ -55,6 +55,7 @@ dependencies:
   shared_preferences: ^2.2.1
   flutter_map: ^0.14.0
   multiselect: ^0.1.0
+  image_picker: ^1.0.4
 
 dev_dependencies:
   json_serializable: ^6.2.0 #for mapping models from json and to json

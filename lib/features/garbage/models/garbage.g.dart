@@ -23,8 +23,8 @@ Map<String, dynamic> _$GarbageToJson(Garbage instance) => <String, dynamic>{
     };
 
 const _$GarbageTypeEnumMap = {
-  GarbageType.plastic: 'Plastic',
-  GarbageType.glass: 'Glass',
-  GarbageType.metal: 'Metal',
-  GarbageType.organic: 'Organic',
+  GarbageType.plastic: 'plastic',
+  GarbageType.glass: 'glass',
+  GarbageType.metal: 'metal',
+  GarbageType.organic: 'organic',
 };

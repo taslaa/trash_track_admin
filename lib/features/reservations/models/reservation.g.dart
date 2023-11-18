@@ -36,6 +36,6 @@ Map<String, dynamic> _$ReservationToJson(Reservation instance) =>
     };
 
 const _$ReservationStatusEnumMap = {
-  ReservationStatus.inProgress: 'InProgress',
-  ReservationStatus.done: 'Done',
+  ReservationStatus.inProgress: 'inProgress',
+  ReservationStatus.done: 'done',
 };

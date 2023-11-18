@@ -9,6 +9,7 @@ import 'package:trash_track_admin/features/country/screens/country_add_screen.da
 import 'package:trash_track_admin/features/country/screens/country_edit_screen.dart';
 import 'package:trash_track_admin/features/dashboard/screens/dashboard_screen.dart';
 import 'package:trash_track_admin/features/garbage/screens/map_screen.dart';
+import 'package:trash_track_admin/features/product/models/product.dart';
 import 'package:trash_track_admin/features/quiz/models/quiz.dart';
 import 'package:trash_track_admin/features/quiz/screens/quiz_edit_screen.dart';
 import 'package:trash_track_admin/features/reports/models/report.dart';
@@ -43,7 +44,11 @@ import 'package:trash_track_admin/features/city/screens/cities_screen.dart';
 import 'package:trash_track_admin/features/city/screens/city_edit_screen.dart';
 import 'package:trash_track_admin/features/quiz/screens/quiz_add_screen.dart';
 import 'package:trash_track_admin/features/schedules/screens/garbage_display_screen.dart';
+import 'package:trash_track_admin/features/product/screens/products_screen.dart';
+import 'package:trash_track_admin/features/product/screens/product_add_screen.dart';
+import 'package:trash_track_admin/features/product/screens/product_edit_screen.dart';
 import 'package:trash_track_admin/features/quiz/screens/quizzes_screen.dart';
+import 'package:trash_track_admin/features/order/screens/orders_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:latlong2/latlong.dart';
@@ -68,6 +73,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
   List<int>? selectedGarbagesIds;
   Reservation? selectedReservation;
   UserEntity? selectedUser;
+  Product? selectedProduct;
 
   LatLng? _selectedGarbageLocation = LatLng(43.3422, 17.8128);
   String? selectedAddress = '';
@@ -121,6 +127,21 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
   void onAddVehicle() {
     setState(() {
       selectedRoute = 'vehicles/add';
+    });
+  }
+
+  // Product Callbacks
+
+  void onAddProduct() {
+    setState(() {
+      selectedRoute = 'product/add';
+    });
+  }
+
+  void onEditProduct(Product product) {
+    setState(() {
+      selectedProduct = product;
+      selectedRoute = 'product/edit';
     });
   }
 
@@ -324,6 +345,32 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
         }
       case 'vehicle_models/add':
         return VehicleModelAddScreen(
+          onUpdateRoute: updateSelectedRoute,
+        );
+
+        // ORDERS
+      case 'order':
+        return OrdersScreen(
+          onAdd: onAddProduct,
+        );
+
+        // PRODUCTS
+      case 'product':
+        return ProductScreen(
+          onAdd: onAddProduct,
+          onEdit: onEditProduct,
+        );
+      case 'product/edit':
+        if (selectedProduct != null) {
+          return ProductEditScreen(
+            product: selectedProduct!,
+            onUpdateRoute: updateSelectedRoute,
+          );
+        } else {
+          return const Text('Invalid Vehicle Model');
+        }
+      case 'product/add':
+        return ProductAddScreen(
           onUpdateRoute: updateSelectedRoute,
         );
       // VEHICLES

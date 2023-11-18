@@ -30,10 +30,12 @@ class _AdminSidebarState extends State<AdminSidebar> {
     {'name': 'Garabge map', 'icon': Icons.map, 'route': 'garbage-map'},
     {'name': 'User', 'icon': Icons.people, 'route': 'users'},
     {'name': 'Schedule', 'icon': Icons.schedule, 'route': 'schedules'},
-    {'name': 'Services', 'icon': Icons.room_service, 'route': 'services'},
-    {'name': 'Reports', 'icon': Icons.report, 'route': 'reports'},
+    //{'name': 'Services', 'icon': Icons.room_service, 'route': 'services'},
+    //{'name': 'Reports', 'icon': Icons.report, 'route': 'reports'},
     {'name': 'Reservations', 'icon': Icons.calendar_month, 'route': 'reservations'},
     {'name': 'Quiz', 'icon': Icons.quiz_outlined, 'route': 'quiz'},
+    {'name': 'Product', 'icon': Icons.production_quantity_limits, 'route': 'product'},
+    {'name': 'Order', 'icon': Icons.abc, 'route': 'order'},
   ];
 
  @override
