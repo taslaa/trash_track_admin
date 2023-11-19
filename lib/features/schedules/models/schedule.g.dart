@@ -35,7 +35,7 @@ Map<String, dynamic> _$ScheduleToJson(Schedule instance) => <String, dynamic>{
     };
 
 const _$PickupStatusEnumMap = {
-  PickupStatus.completed: 'completed',
-  PickupStatus.pending: 'pending',
-  PickupStatus.cancelled: 'cancelled',
+  PickupStatus.completed: 'Completed',
+  PickupStatus.pending: 'Pending',
+  PickupStatus.cancelled: 'Cancelled',
 };

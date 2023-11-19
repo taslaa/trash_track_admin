@@ -137,6 +137,11 @@ class CountByGarbageTypePainter extends CustomPainter {
 
   void drawText(Canvas canvas, String text, Offset center, double angle,
       Paint paint, Size size) {
+    if (text == '0') {
+      // Skip drawing text if the count is 0
+      return;
+    }
+
     final textSpan = TextSpan(
       text: text,
       style: TextStyle(

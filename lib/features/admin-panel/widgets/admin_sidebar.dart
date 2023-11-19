@@ -30,77 +30,91 @@ class _AdminSidebarState extends State<AdminSidebar> {
     {'name': 'Garabge map', 'icon': Icons.map, 'route': 'garbage-map'},
     {'name': 'User', 'icon': Icons.people, 'route': 'users'},
     {'name': 'Schedule', 'icon': Icons.schedule, 'route': 'schedules'},
-    //{'name': 'Services', 'icon': Icons.room_service, 'route': 'services'},
-    //{'name': 'Reports', 'icon': Icons.report, 'route': 'reports'},
-    {'name': 'Reservations', 'icon': Icons.calendar_month, 'route': 'reservations'},
+    {'name': 'Services', 'icon': Icons.room_service, 'route': 'services'},
+    {'name': 'Reports', 'icon': Icons.report, 'route': 'reports'},
+    {
+      'name': 'Reservations',
+      'icon': Icons.calendar_month,
+      'route': 'reservations'
+    },
     {'name': 'Quiz', 'icon': Icons.quiz_outlined, 'route': 'quiz'},
-    {'name': 'Product', 'icon': Icons.production_quantity_limits, 'route': 'product'},
-    {'name': 'Order', 'icon': Icons.abc, 'route': 'order'},
+    {
+      'name': 'Product',
+      'icon': Icons.production_quantity_limits,
+      'route': 'product'
+    },
+    {'name': 'Order', 'icon': Icons.list_alt, 'route': 'order'},
   ];
 
- @override
-Widget build(BuildContext context) {
-  return Container(
-    width: 200,
-    decoration: BoxDecoration(
-      color: Colors.transparent,
-      border: Border(
-        right: BorderSide(
-          color: Color(0xFFE0D8F0),
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 200,
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        border: Border(
+          right: BorderSide(
+            color: Color(0xFFE0D8F0),
+          ),
         ),
       ),
-    ),
-    child: Column(
-      children: [
-        Expanded(
+      child: SingleChildScrollView(
+        child: Container(
+          height: MediaQuery.of(context)
+              .size
+              .height, // Set a specific height or use MediaQuery for the screen height
           child: Column(
             children: [
-              for (final entity in entities)
-                buildSidebarItem(entity['icon'], entity['name'], entity['route']),
-              SizedBox(height: 20), // Add some space between items and the logout button
+              Expanded(
+                child: Column(
+                  children: [
+                    for (final entity in entities)
+                      buildSidebarItem(
+                          entity['icon'], entity['name'], entity['route']),
+                    SizedBox(height: 20),
+                  ],
+                ),
+              ),
+              buildLogoutButton(),
             ],
           ),
         ),
-        buildLogoutButton(),
-      ],
-    ),
-  );
-}
-
+      ),
+    );
+  }
 
   Widget buildSidebarItem(IconData icon, String entityName, String route) {
-  final isSelected = widget.selectedRoute == route;
+    final isSelected = widget.selectedRoute == route;
 
-  return GestureDetector(
-    onTap: () {
-      // Call the callback to handle tab selection
-      widget.onTabSelected(route);
-    },
-    child: Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(8),
-      color: isSelected ? Color(0xFFE9DEF8) : Colors.transparent,
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            color: Color(0xFF49464E),
-            size: 32,
-          ),
-          SizedBox(width: 8),
-          Text(
-            entityName,
-            style: TextStyle(
+    return GestureDetector(
+      onTap: () {
+        // Call the callback to handle tab selection
+        widget.onTabSelected(route);
+      },
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(8),
+        color: isSelected ? Color(0xFFE9DEF8) : Colors.transparent,
+        child: Row(
+          children: [
+            Icon(
+              icon,
               color: Color(0xFF49464E),
-              fontSize: 16,
+              size: 32,
             ),
-          ),
-        ],
+            SizedBox(width: 8),
+            Text(
+              entityName,
+              style: TextStyle(
+                color: Color(0xFF49464E),
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   Widget buildLogoutButton() {
     return Align(

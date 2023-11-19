@@ -13,7 +13,7 @@ class CountByVehicleTypeWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 20,  // Set the width and height to control the size
+      width: 20, // Set the width and height to control the size
       height: 20,
       child: CustomPaint(
         size: Size(20, 20), // Adjust the size as needed for the drawing logic
@@ -67,11 +67,19 @@ class CountByVehicleTypePainter extends CustomPainter {
       truckPaint,
     );
 
-    drawText(canvas, garbageTruckCount.toString(), center, -pi + (garbageTruckAngle / 2), garbageTruckPaint, size);
-    drawText(canvas, truckCount.toString(), center, -pi + garbageTruckAngle + (truckAngle / 2), truckPaint, size);
+    drawText(canvas, garbageTruckCount.toString(), center,
+        -pi + (garbageTruckAngle / 2), garbageTruckPaint, size);
+    drawText(canvas, truckCount.toString(), center,
+        -pi + garbageTruckAngle + (truckAngle / 2), truckPaint, size);
   }
 
-  void drawText(Canvas canvas, String text, Offset center, double angle, Paint paint, Size size) {
+  void drawText(Canvas canvas, String text, Offset center, double angle,
+      Paint paint, Size size) {
+    if (text == '0') {
+      // Skip drawing text if the count is 0
+      return;
+    }
+
     final textSpan = TextSpan(
       text: text,
       style: TextStyle(
@@ -92,6 +100,7 @@ class CountByVehicleTypePainter extends CustomPainter {
 
     final radius = size.width / 2;
 
+    // Calculate the position to center the text within the sector
     final x = center.dx + (radius / 2) * cos(angle) - (textWidth / 2);
     final y = center.dy + (radius / 2) * sin(angle) - (textHeight / 2);
 

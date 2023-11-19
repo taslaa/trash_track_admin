@@ -16,7 +16,7 @@ class OrdersService extends BaseService<Order> {
           'https://localhost:7090/api/Orders/ToggleOrderStatus?id=$orderId'),
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 204) {
     } else {
       print('Error toggling order status: ${response.statusCode}');
     }

@@ -41,8 +41,8 @@ const _$ReportStateEnumMap = {
 };
 
 const _$ReportTypeEnumMap = {
-  ReportType.trashOverflow: 'trashOverflow',
-  ReportType.littering: 'littering',
-  ReportType.garbageBinDamage: 'garbageBinDamage',
-  ReportType.graffitiVandalism: 'graffitiVandalism',
+  ReportType.trashOverflow: 'TrashOverflow',
+  ReportType.littering: 'Littering',
+  ReportType.garbageBinDamage: 'GarbageBinDamage',
+  ReportType.graffitiVandalism: 'GraffitiVandalism',
 };
