@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trash_track_admin/features/admin-panel/screens/admin_panel._screen.dart';
 import 'package:trash_track_admin/features/user/services/auth_service.dart'; // Adjust the import path to your AuthService file
 import 'package:trash_track_admin/features/user/widgets/success_screen.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -27,10 +29,17 @@ class _LoginScreenState extends State<LoginScreen> {
     final token = await _authService.signIn(email, password);
 
     if (token != null) {
-      // Login successful, navigate to the SuccessScreen for testing.
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => AdminPanelScreen()),
-      );
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      Map<String, dynamic> decodedToken = Jwt.parseJwt(token!);
+      final role = decodedToken['Role'];
+
+      if (role == 'Administrator') {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => AdminPanelScreen()),
+        );
+      }
     } else {
       // Login failed, show an error message to the user.
       showDialog(
@@ -131,7 +140,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: ElevatedButton.styleFrom(
                     primary: Color(0xFF49464E), // Button color
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10), // Button border radius
+                      borderRadius:
+                          BorderRadius.circular(10), // Button border radius
                     ),
                     minimumSize: Size(400, 48), // Button size
                   ),
