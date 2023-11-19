@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:trash_track_admin/shared/utils/util.dart';
 
 class AuthService extends ChangeNotifier {
   static String? _baseUrl;
@@ -44,6 +45,7 @@ class AuthService extends ChangeNotifier {
       String? token = result['token'];
 
       if (token != null) {
+        Autentification.setToken(token);
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString('token', token);
         print('Token: $token');

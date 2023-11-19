@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 class Autentification {
   static String? token;
   static Map? tokenDecoded;
+
+  static void setToken(String? newToken) {
+    token = newToken;
+  }
 }
 
 dynamic DateEncode(dynamic item) {
@@ -24,4 +28,3 @@ Image imageFromBase64String(String base64Image) {
 
 ButtonStyle buttonStyleSecondary = ElevatedButton.styleFrom(
     primary: Colors.brown[100], onPrimary: Colors.black);
-
