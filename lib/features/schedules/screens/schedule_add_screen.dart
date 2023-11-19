@@ -166,15 +166,15 @@ class _ScheduleAddScreenState extends State<ScheduleAddScreen> {
                           ),
                           child: DropDownMultiSelect(
                             options:
-                                _users.map((user) => user.firstName).toList(),
+                                _users.map((user) => user.lastName).toList(),
                             selectedValues: selectedValuesModel.selectedUsers
-                                .map((user) => user.firstName)
+                                .map((user) => user.lastName )
                                 .toList(),
                             onChanged: (values) {
                               setState(() {
                                 final selectedUsers = _users
                                     .where((user) =>
-                                        values.contains(user.firstName))
+                                        values.contains(user.lastName))
                                     .toList();
                                 selectedValuesModel.updateUser(selectedUsers);
                               });

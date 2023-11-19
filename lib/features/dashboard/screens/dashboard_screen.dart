@@ -14,7 +14,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int administratorCount = 0;
   int userCount = 0;
   int driverCount = 0;
-  
+
   int metalGarbageCount = 0;
   int glassGarbageCount = 0;
   int plasticGarbageCount = 0;
@@ -30,22 +30,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     fetchData();
     fetchDataForReservations();
+    fetchDataForGarbage();
+    fetchDataForVehicles();
   }
 
   Future<void> fetchData() async {
-    final adminCountResponse = await http
-        .get(Uri.parse('http://localhost:7034/api/Users/AdministratorCount'));
+    try {
+      final adminCountResponse = await http.get(
+          Uri.parse('http://localhost:7034/api/Users/AdministratorCount'));
+      if (adminCountResponse.statusCode == 200) {
+        final adminData = int.parse(adminCountResponse.body);
+        setState(() {
+          administratorCount = adminData;
+        });
+      }
+    } catch (e) {
+      print('Error during HTTP request: $e');
+    }
     final userCountResponse =
         await http.get(Uri.parse('http://localhost:7034/api/Users/UserCount'));
     final driverCountResponse = await http
         .get(Uri.parse('http://localhost:7034/api/Users/DriverCount'));
-
-    if (adminCountResponse.statusCode == 200) {
-      final adminData = int.parse(adminCountResponse.body);
-      setState(() {
-        administratorCount = adminData;
-      });
-    }
 
     if (userCountResponse.statusCode == 200) {
       final userData = int.parse(userCountResponse.body);
@@ -102,8 +107,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> fetchDataForVehicles() async {
-    final garbageTruckCountResponse = await http
-        .get(Uri.parse('http://localhost:7034/api/VehicleModels/GarbageTruckCount'));
+    final garbageTruckCountResponse = await http.get(
+        Uri.parse('http://localhost:7034/api/VehicleModels/GarbageTruckCount'));
     final truckCountResponse = await http
         .get(Uri.parse('http://localhost:7034/api/VehicleModels/TruckCount'));
 
@@ -123,8 +128,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> fetchDataForReservations() async {
-    final reservationsCountResponse = await http
-        .get(Uri.parse('http://localhost:7034/api/Reservation/ReservationCount'));
+    final reservationsCountResponse = await http.get(
+        Uri.parse('http://localhost:7034/api/Reservation/ReservationCount'));
 
     if (reservationsCountResponse.statusCode == 200) {
       final reservationData = int.parse(reservationsCountResponse.body);
@@ -230,7 +235,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
           ),
-           _buildSquare(
+          _buildSquare(
             color: Color(0xFFF0F0F0), // #fafafa
             roleWidget: Column(
               mainAxisAlignment: MainAxisAlignment.start,

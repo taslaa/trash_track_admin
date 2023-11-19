@@ -94,6 +94,7 @@ class _AdminSidebarState extends State<AdminSidebar> {
       },
       child: Container(
         width: double.infinity,
+        height: 45,
         padding: EdgeInsets.all(8),
         color: isSelected ? Color(0xFFE9DEF8) : Colors.transparent,
         child: Row(
