@@ -201,14 +201,12 @@ class _NotificationsScreenState extends State<NotificationScreen> {
                     children: [
                       TableCellWidget(text: 'Title'),
                       TableCellWidget(text: 'Content'),
-                      TableCellWidget(text: 'isRead'),
                       TableCellWidget(text: 'Actions'),
                     ],
                   ),
                   if (_isLoading)
                     TableRow(
                       children: [
-                        TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
                         TableCellWidget(text: 'Loading...'),
@@ -225,13 +223,6 @@ class _NotificationsScreenState extends State<NotificationScreen> {
                         children: [
                           TableCellWidget(text: notification.title ?? ''),
                           TableCellWidget(text: notification.content ?? ''),
-                          TableCellWidget(
-                            text: notification.isRead != null
-                                ? notification.isRead!
-                                    ? 'Yes'
-                                    : 'No'
-                                : 'Unknown',
-                          ),
                           TableCell(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,

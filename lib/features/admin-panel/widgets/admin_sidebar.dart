@@ -44,6 +44,7 @@ class _AdminSidebarState extends State<AdminSidebar> {
       'route': 'product'
     },
     {'name': 'Order', 'icon': Icons.list_alt, 'route': 'order'},
+    {'name': 'Notifications', 'icon': Icons.notifications, 'route': 'notification'},
   ];
 
   @override

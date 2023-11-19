@@ -87,7 +87,7 @@ class EnumsService {
 
   Future<Map<int, String>> getPickupStatus() async {
     final response = await http
-        .get(Uri.parse('https://localhost:7090/api/Enums/pickup-status'));
+        .get(Uri.parse('http://localhost:7034/api/Enums/pickup-status'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -114,7 +114,7 @@ class EnumsService {
 
    Future<Map<int, String>> getReservationStatus() async {
     final response = await http
-        .get(Uri.parse('http://localhost:5057/api/Enums/reservation-status'));
+        .get(Uri.parse('http://localhost:7034/api/Enums/reservation-status'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -141,7 +141,7 @@ class EnumsService {
 
   Future<Map<int, String>> getProductTypes() async {
     final response = await http
-        .get(Uri.parse('https://localhost:7090/api/Enums/product-type'));
+        .get(Uri.parse('http://localhost:7034/api/Enums/product-type'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);

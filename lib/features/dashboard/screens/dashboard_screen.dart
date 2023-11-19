@@ -34,11 +34,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> fetchData() async {
     final adminCountResponse = await http
-        .get(Uri.parse('http://localhost:5057/api/Users/AdministratorCount'));
+        .get(Uri.parse('http://localhost:7034/api/Users/AdministratorCount'));
     final userCountResponse =
-        await http.get(Uri.parse('http://localhost:5057/api/Users/UserCount'));
+        await http.get(Uri.parse('http://localhost:7034/api/Users/UserCount'));
     final driverCountResponse = await http
-        .get(Uri.parse('http://localhost:5057/api/Users/DriverCount'));
+        .get(Uri.parse('http://localhost:7034/api/Users/DriverCount'));
 
     if (adminCountResponse.statusCode == 200) {
       final adminData = int.parse(adminCountResponse.body);
@@ -64,13 +64,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> fetchDataForGarbage() async {
     final metalGarbageCountResponse = await http
-        .get(Uri.parse('http://localhost:5057/api/Garbage/MetalGarbageCount'));
+        .get(Uri.parse('http://localhost:7034/api/Garbage/MetalGarbageCount'));
     final glassGarbageCountResponse = await http
-        .get(Uri.parse('http://localhost:5057/api/Garbage/GlassGarbageCount'));
+        .get(Uri.parse('http://localhost:7034/api/Garbage/GlassGarbageCount'));
     final plasticGarbageCountResponse = await http.get(
-        Uri.parse('http://localhost:5057/api/Garbage/PlasticGarbageCount'));
+        Uri.parse('http://localhost:7034/api/Garbage/PlasticGarbageCount'));
     final organicGarbageCountResponse = await http.get(
-        Uri.parse('http://localhost:5057/api/Garbage/OrganicGarbageCount'));
+        Uri.parse('http://localhost:7034/api/Garbage/OrganicGarbageCount'));
 
     if (metalGarbageCountResponse.statusCode == 200) {
       final metalGarbageData = int.parse(metalGarbageCountResponse.body);
@@ -103,9 +103,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> fetchDataForVehicles() async {
     final garbageTruckCountResponse = await http
-        .get(Uri.parse('http://localhost:5057/api/VehicleModels/GarbageTruckCount'));
+        .get(Uri.parse('http://localhost:7034/api/VehicleModels/GarbageTruckCount'));
     final truckCountResponse = await http
-        .get(Uri.parse('http://localhost:5057/api/VehicleModels/TruckCount'));
+        .get(Uri.parse('http://localhost:7034/api/VehicleModels/TruckCount'));
 
     if (garbageTruckCountResponse.statusCode == 200) {
       final garbageTruckData = int.parse(garbageTruckCountResponse.body);
@@ -124,7 +124,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> fetchDataForReservations() async {
     final reservationsCountResponse = await http
-        .get(Uri.parse('https://localhost:7090/api/Reservation/ReservationCount'));
+        .get(Uri.parse('http://localhost:7034/api/Reservation/ReservationCount'));
 
     if (reservationsCountResponse.statusCode == 200) {
       final reservationData = int.parse(reservationsCountResponse.body);

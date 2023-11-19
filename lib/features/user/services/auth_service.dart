@@ -11,7 +11,7 @@ class AuthService extends ChangeNotifier {
 
   AuthService() {
     _baseUrl = const String.fromEnvironment("baseUrl",
-        defaultValue: "https://localhost:7090/");
+        defaultValue: "http://localhost:7034/");
   }
 
   Future<void> signOut(BuildContext context) async {

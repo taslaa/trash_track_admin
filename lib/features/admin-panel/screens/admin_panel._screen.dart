@@ -9,6 +9,7 @@ import 'package:trash_track_admin/features/country/screens/country_add_screen.da
 import 'package:trash_track_admin/features/country/screens/country_edit_screen.dart';
 import 'package:trash_track_admin/features/dashboard/screens/dashboard_screen.dart';
 import 'package:trash_track_admin/features/garbage/screens/map_screen.dart';
+import 'package:trash_track_admin/features/notifications/screens/notification_list.dart';
 import 'package:trash_track_admin/features/product/models/product.dart';
 import 'package:trash_track_admin/features/quiz/models/quiz.dart';
 import 'package:trash_track_admin/features/quiz/screens/quiz_edit_screen.dart';
@@ -348,13 +349,13 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
           onUpdateRoute: updateSelectedRoute,
         );
 
-        // ORDERS
+      // ORDERS
       case 'order':
         return OrdersScreen(
           onAdd: onAddProduct,
         );
 
-        // PRODUCTS
+      // PRODUCTS
       case 'product':
         return ProductScreen(
           onAdd: onAddProduct,
@@ -373,6 +374,11 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
         return ProductAddScreen(
           onUpdateRoute: updateSelectedRoute,
         );
+
+      //NOTIFICATIONS
+      case 'notification':
+        return NotificationScreen();
+
       // VEHICLES
       case 'vehicles':
         return VehiclesScreen(

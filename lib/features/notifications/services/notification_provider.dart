@@ -10,7 +10,7 @@ class NotificationProvider extends BaseService<Notif> {
   String? _mainBaseUrl;
   final String _mainEndpoint = "api/Notification/SendNotification";
 
-  NotificationProvider() : super('Notifications') {
+  NotificationProvider() : super('NotificationRabbit') {
     _mainBaseUrl = const String.fromEnvironment("mainBaseUrl",
         defaultValue: "http://localhost:7138/");
   }
